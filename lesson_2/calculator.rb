@@ -18,7 +18,7 @@ def operation_to_message(op)
            when '*' then 'Multiplying'
            when '/' then 'Dividing'
            end
-  return result
+  result
 end
 
 # Get the first number and store it in a variable num1
@@ -78,7 +78,6 @@ loop do # main loop
   prompt "#{operation_to_message(operator)} the two numbers..."
   num1 = num1.to_i
   num2 = num2.to_i
-
 
   # Calculate the result depending on the users operator input
   result = case operator
