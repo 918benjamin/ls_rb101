@@ -4,7 +4,8 @@
 # (x) Validate loan amount as a proper integer > 0
 # (X) Validate apr as the correct format > 0
 # (X) Validate loan duration as a proper integer > 0
-# ( ) Check Ruby style guide max line length and adjust any culprits
+# (x) Check Ruby style guide max line length and adjust any culprits
+# (x) Check rubocop
 # ( ) Check for edge cases/user input not covered
 
 # Edges not covered
