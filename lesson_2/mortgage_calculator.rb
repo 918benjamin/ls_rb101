@@ -4,11 +4,12 @@
 # (x) Validate loan amount as a proper integer > 0
 # (X) Validate apr as the correct format > 0
 # (X) Validate loan duration as a proper integer > 0
-# ( ) Check for edge cases not covered
+# ( ) Check for edge cases/user input not covered
   # Not covered
     # Non-integer loan amounts (seems unlikely to include cents on a mortgage)
   # Covered
-    # 
+    # Including the % sign on APR
+    # Wrong APR input format (.05 instead of 5)
 # ( ) Check Ruby style guide max line length and adjust any culprits
 
 require 'yaml'
@@ -29,7 +30,18 @@ def valid_apr?(num)
   if (num.to_i.to_s == num) && (num.to_i > 0)
     return true
   else
-    (num.to_f.to_s == num) && (num.to_f > 0)
+    if (num.to_f.to_s == num) && (num.to_f < 1)
+      prompt(MESSAGE['low_apr'])
+      prompt("Your APR is #{num}% (Confirm Y/N)")
+      response = gets.chomp.downcase
+      if response.split('').first == 'y'
+        return (num.to_f.to_s == num) && (num.to_f > 0)
+      else
+        return false
+      end
+    else
+      (num.to_f.to_s == num) && (num.to_f > 0)
+    end
   end
 end
 
