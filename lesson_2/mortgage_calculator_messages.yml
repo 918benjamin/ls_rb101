@@ -1,0 +1,7 @@
+welcome: 'Welcome to the mortage calculator!'
+get_loan_amount: 'What is the loan amount in dollars?'
+get_apr: 'What is the APR? (in x% format without the %)'
+get_duration: 'What is the loan duration in years?'
+invalid_loan: 'Loans must be a whole integer number > 0'
+invalid_apr: 'APR must be in x% format (without the %). Example: for 4% enter 4'
+invalid_loan_duration: 'Loan must be for at least a year (whole numbers above 0 only)'
