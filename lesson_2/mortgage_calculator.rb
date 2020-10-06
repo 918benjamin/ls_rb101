@@ -7,10 +7,10 @@
 # ( ) Check Ruby style guide max line length and adjust any culprits
 # ( ) Check for edge cases/user input not covered
 
-# Not covered
+# Edges not covered
 # Non-integer loan amounts (seems unlikely to include cents on a mortgage)
 
-# Covered
+# Edges covered
 # Including the % sign on APR
 # Wrong APR input format (.05 instead of 5)
 
@@ -75,12 +75,12 @@ loop do
   end
 end
 
-loan_duration_years = ''
+loan_years = ''
 loop do
   prompt(MESSAGE['get_duration'])
-  loan_duration_years = gets.chomp
-  if valid_loan?(loan_duration_years)
-    loan_duration_years = loan_duration_years.to_i
+  loan_years = gets.chomp
+  if valid_loan?(loan_years)
+    loan_years = loan_years.to_i
     break
   else
     prompt(MESSAGE['invalid_loan_duration'])
@@ -88,23 +88,22 @@ loop do
 end
 
 # Calculate monthly interest rate
-monthly_interest_rate = apr / 12
+monthly_rate = apr / 12
 
 # Calculate loan duration in months
-loan_duration_months = loan_duration_years.to_f * 12
+loan_months = loan_years.to_f * 12
 
 # Calculate monthly payment. The formula is:
 # monthly_payment = loan_amount *
-# (monthly_interest_rate / (1 - (1 + rate)**(loan_duration_months)))
-monthly_payment = loan_amount *
-                  (monthly_interest_rate / (1 - (1 +
-                  monthly_interest_rate)**(-loan_duration_months)))
+# (monthly_rate / (1 - (1 + rate)**(loan_duration_months)))
+monthly_payment = loan_amount * (monthly_rate / (1 -
+                  (1 + monthly_rate)**(-loan_months)))
 monthly_payment = monthly_payment.round(2)
 
-monthly_interest_rate = monthly_interest_rate.round(4) * 100
+monthly_rate = monthly_rate.round(4) * 100
 
 # Print inputs (verify & remind) & the resulting monthly payment
 prompt("Loan amount is $#{loan_amount}")
-prompt("APR is #{apr * 100}%, monthly it's #{monthly_interest_rate}%")
-prompt("Loan is for #{loan_duration_years} years or #{loan_duration_months} months")
+prompt("APR is #{apr * 100}% so the monthly rate is #{monthly_rate}%")
+prompt("Loan is for #{loan_years} years or #{loan_months} months")
 prompt("Monthly payment is $#{monthly_payment}")
