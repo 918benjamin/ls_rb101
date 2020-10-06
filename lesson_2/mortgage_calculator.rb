@@ -4,13 +4,15 @@
 # (x) Validate loan amount as a proper integer > 0
 # (X) Validate apr as the correct format > 0
 # (X) Validate loan duration as a proper integer > 0
-# ( ) Check for edge cases/user input not covered
-  # Not covered
-    # Non-integer loan amounts (seems unlikely to include cents on a mortgage)
-  # Covered
-    # Including the % sign on APR
-    # Wrong APR input format (.05 instead of 5)
 # ( ) Check Ruby style guide max line length and adjust any culprits
+# ( ) Check for edge cases/user input not covered
+
+# Not covered
+# Non-integer loan amounts (seems unlikely to include cents on a mortgage)
+
+# Covered
+# Including the % sign on APR
+# Wrong APR input format (.05 instead of 5)
 
 require 'yaml'
 
@@ -23,24 +25,24 @@ def prompt(text)
 end
 
 def valid_loan?(num)
-  (num.to_i.to_s == num) && (num.to_i > 0)
+  num.to_i.to_s == num && num.to_i > 0
 end
 
 def valid_apr?(num)
-  if (num.to_i.to_s == num) && (num.to_i > 0)
-    return true
+  if num.to_i.to_s == num && num.to_i > 0
+    true
   else
-    if (num.to_f.to_s == num) && (num.to_f < 1)
+    if num.to_f.to_s == num && num.to_f < 1
       prompt(MESSAGE['low_apr'])
       prompt("Your APR is #{num}% (Confirm Y/N)")
       response = gets.chomp.downcase
       if response.split('').first == 'y'
-        return (num.to_f.to_s == num) && (num.to_f > 0)
+        num.to_f.to_s == num && num.to_f > 0
       else
-        return false
+        false
       end
     else
-      (num.to_f.to_s == num) && (num.to_f > 0)
+      num.to_f.to_s == num && num.to_f > 0
     end
   end
 end
@@ -92,12 +94,17 @@ monthly_interest_rate = apr / 12
 loan_duration_months = loan_duration_years.to_f * 12
 
 # Calculate monthly payment. The formula is:
-# monthly_payment = loan_amount * (monthly_interest_rate / (1 - (1 + rate)**(loan_duration_months)))
-monthly_payment = loan_amount * (monthly_interest_rate / (1 - (1 + monthly_interest_rate)**(-loan_duration_months)))
+# monthly_payment = loan_amount *
+# (monthly_interest_rate / (1 - (1 + rate)**(loan_duration_months)))
+monthly_payment = loan_amount *
+                  (monthly_interest_rate / (1 - (1 +
+                  monthly_interest_rate)**(-loan_duration_months)))
 monthly_payment = monthly_payment.round(2)
 
-# Output a summary of the inputs (for verification and reminder) and the resulting monthly payment
+monthly_interest_rate = monthly_interest_rate.round(4) * 100
+
+# Print inputs (verify & remind) & the resulting monthly payment
 prompt("Loan amount is $#{loan_amount}")
-prompt("APR is #{apr * 100}% so monthly interest rate is #{monthly_interest_rate.round(4) * 100}%")
+prompt("APR is #{apr * 100}%, monthly it's #{monthly_interest_rate}%")
 prompt("Loan is for #{loan_duration_years} years or #{loan_duration_months} months")
 prompt("Monthly payment is $#{monthly_payment}")
