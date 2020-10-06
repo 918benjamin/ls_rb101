@@ -1,0 +1,9 @@
+welcome: 'Welcome to Calculator! Enter your name:'
+invalid_name: 'Make sure to use a valid name.'
+give_num1: 'Give me a number:'
+invalid_num: "Hmm... that doesn't look like a valid number"
+give_num2: 'Give me a second number:'
+give_operation: 'What type of operation would you like to perform? Enter one + - * /'
+invalid_operation: "Invalid operation. Must choose + - * /"
+again: 'Do you want to perform another calculation? (Y/N)'
+thank_you: 'Thank you for using the calculator. Goodbye!'
