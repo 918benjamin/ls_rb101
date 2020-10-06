@@ -29,21 +29,26 @@ def valid_loan?(num)
 end
 
 def valid_apr?(num)
+  # Is the APR input an integer > 0?
   if num.to_i.to_s == num && num.to_i > 0
     true
+  # Is the APR input a float that looks suspect (converted perhaps)?
+  elsif num.to_f.to_s == num && num.to_f < 1
+    low_apr(num)
+  # Probably a float, true only if valid and > 0
   else
-    if num.to_f.to_s == num && num.to_f < 1
-      prompt(MESSAGE['low_apr'])
-      prompt("Your APR is #{num}% (Confirm Y/N)")
-      response = gets.chomp.downcase
-      if response.split('').first == 'y'
-        num.to_f.to_s == num && num.to_f > 0
-      else
-        false
-      end
-    else
-      num.to_f.to_s == num && num.to_f > 0
-    end
+    num.to_f.to_s == num && num.to_f > 0
+  end
+end
+
+def low_apr(num)
+  prompt(MESSAGE['low_apr'])
+  prompt("Your APR is #{num}%? (Confirm Y/N)")
+  response = gets.chomp.downcase
+  if response.split('').first == 'y'
+    num.to_f.to_s == num && num.to_f > 0
+  else
+    false
   end
 end
 
