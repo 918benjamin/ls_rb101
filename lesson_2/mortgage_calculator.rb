@@ -1,115 +1,166 @@
-# Refactoring todos:
-# (x) Create a prompt method
-# (x) Set up a configuration file for the messages, yaml format
-# (x) Validate loan amount as a proper integer > 0
-# (X) Validate apr as the correct format > 0
-# (X) Validate loan duration as a proper integer > 0
-# (x) Check Ruby style guide max line length and adjust any culprits
-# (x) Check rubocop
-# ( ) Check for edge cases/user input not covered
-
-# Edges not covered
-# Non-integer loan amounts (seems unlikely to include cents on a mortgage)
-
-# Edges covered
-# Including the % sign on APR
-# Wrong APR input format (.05 instead of 5)
-
 require 'yaml'
 
 MESSAGE = YAML.load_file('mortgage_calculator_messages.yml')
-# puts MESSAGE.inspect
 
 # Method definitions
+def clear_screen
+  system 'clear' # for Linux and Mac system users
+  system 'cls' # For Windows system users
+end
+
 def prompt(text)
   puts "=> #{text}"
 end
 
-def valid_loan?(num)
-  num.to_i.to_s == num && num.to_i > 0
+def welcome_user
+  prompt(MESSAGE['welcome'])
+end
+
+def valid_number?(num)
+  num.delete!(',') if num.include?(',')
+  num.to_i.to_s == num
+end
+
+def not_zero?(num)
+  num.to_i > 0
 end
 
 def valid_apr?(num)
   # Is the APR input an integer > 0?
-  if num.to_i.to_s == num && num.to_i > 0
-    true
+  if valid_number?(num)
+    not_zero?(num)
   # Is the APR input a float that looks suspect (converted perhaps)?
   elsif num.to_f.to_s == num && num.to_f < 1
     low_apr(num)
-  # Probably a float, true only if valid and > 0
+  # Probably a float, correct only if valid and > 0
   else
     num.to_f.to_s == num && num.to_f > 0
   end
 end
 
+# You can test this check by entering an APR like 0.05 (wrong version of 5%)
 def low_apr(num)
-  prompt(MESSAGE['low_apr'])
-  prompt("Your APR is #{num}%? (Confirm Y/N)")
-  response = gets.chomp.downcase
-  if response.split('').first == 'y'
-    num.to_f.to_s == num && num.to_f > 0
-  else
-    false
+  loop do
+    prompt(MESSAGE['low_apr'])
+    prompt("Your APR is #{num}%? (Confirm Y/N)")
+    response = gets.chomp
+    if response.downcase.start_with?('y')
+      return num.to_f.to_s == num && num.to_f > 0
+    elsif response.downcase.start_with?('n')
+      return false
+    else
+      prompt(MESSAGE['invalid_response'])
+    end
   end
 end
 
-# Welcome the user to the calculator
-prompt(MESSAGE['welcome'])
-
-# Get three pieces of input from the user: loan amount, APR, loan duration
-loan_amount = ''
-loop do
-  prompt(MESSAGE['get_loan_amount'])
-  loan_amount = gets.chomp
-  if valid_loan?(loan_amount)
-    loan_amount = loan_amount.to_i
-    break
-  else
-    prompt(MESSAGE['invalid_loan'])
+def get_principal
+  loop do
+    prompt(MESSAGE['get_loan_amount'])
+    principal = gets.chomp
+    if valid_number?(principal) && not_zero?(principal)
+      return principal.to_i
+    else
+      prompt(MESSAGE['invalid_loan'])
+    end
   end
 end
 
-apr = ''
-loop do
-  prompt(MESSAGE['get_apr'])
-  apr = gets.chomp
-  if valid_apr?(apr)
-    apr = (apr.to_f) / 100
-    break
-  else
-    prompt(MESSAGE['invalid_apr'])
+def get_apr
+  loop do
+    prompt(MESSAGE['get_apr'])
+    apr = gets.chomp
+    if valid_apr?(apr)
+      return (apr.to_f) / 100
+    else
+      prompt(MESSAGE['invalid_apr'])
+    end
   end
 end
 
-loan_years = ''
-loop do
+def get_years
+  loop do
+    prompt(MESSAGE['get_years'])
+    loan_years = gets.chomp
+    if valid_number?(loan_years)
+      return loan_years.to_i
+    else
+      prompt(MESSAGE['invalid_years'])
+    end
+  end
+end
+
+def get_months
+  loop do
+    prompt(MESSAGE['get_months'])
+    loan_months = gets.chomp
+    if valid_number?(loan_months)
+      return loan_months.to_i
+    else
+      prompt(MESSAGE['invalid_months'])
+    end
+  end
+end
+
+def calculate_loan_months(loan_years, loan_months)
+  (loan_years * 12) + loan_months
+end
+
+def get_duration
   prompt(MESSAGE['get_duration'])
-  loan_years = gets.chomp
-  if valid_loan?(loan_years)
-    loan_years = loan_years.to_i
-    break
-  else
-    prompt(MESSAGE['invalid_loan_duration'])
+  loop do
+    loan_years = get_years
+    loan_months = get_months
+
+    if loan_years + loan_months > 0
+      return calculate_loan_months(loan_years, loan_months)
+    else
+      prompt(MESSAGE['invalid_loan_duration'])
+    end
   end
 end
 
-# Calculate monthly interest rate
-monthly_rate = apr / 12
+def calculate_payment(loan_amount, apr, loan_months)
+  monthly_rate = apr / 12
 
-# Calculate loan duration in months
-loan_months = loan_years.to_f * 12
+  loan_amount * (monthly_rate / (1 - (1 + monthly_rate)**(-loan_months)))
+end
 
-# Calculate monthly payment. The formula is:
-# monthly_payment = loan_amount *
-# (monthly_rate / (1 - (1 + rate)**(loan_duration_months)))
-monthly_payment = loan_amount * (monthly_rate / (1 -
-                  (1 + monthly_rate)**(-loan_months)))
-monthly_payment = monthly_payment.round(2)
+def display_result(result)
+  prompt(format("Your monthly payment is $%.2f", result))
+end
 
-monthly_rate = monthly_rate.round(4) * 100
+def calculate_again?
+  loop do
+    prompt(MESSAGE['again?'])
+    response = gets.chomp
+    if response.downcase.start_with?('y')
+      return true
+    elsif response.downcase.start_with?('n')
+      clear_screen
+      return prompt(MESSAGE['goodbye'])
+    else
+      prompt(MESSAGE['invalid_response'])
+    end
+  end
+end
 
-# Print inputs (verify & remind) & the resulting monthly payment
-prompt("Loan amount is $#{loan_amount}")
-prompt("APR is #{apr * 100}% so the monthly rate is #{monthly_rate}%")
-prompt("Loan is for #{loan_years} years or #{loan_months} months")
-prompt("Monthly payment is $#{monthly_payment}")
+# ---PROGRAM START--- #
+
+clear_screen
+
+welcome_user
+
+loop do
+  loan_amount = get_principal
+  apr = get_apr
+  loan_months = get_duration
+
+  monthly_payment = calculate_payment(loan_amount, apr, loan_months)
+
+  display_result(monthly_payment)
+
+  break unless calculate_again?
+
+  clear_screen
+end
