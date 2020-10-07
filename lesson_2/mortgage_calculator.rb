@@ -22,13 +22,13 @@ def valid_number?(num)
 end
 
 def not_zero?(num)
-  num.to_i > 0
+  num.to_f > 0
 end
 
 def valid_apr?(num)
   # Is the APR input an integer > 0?
-  if valid_number?(num)
-    not_zero?(num)
+  if valid_number?(num) && not_zero?(num)
+    true
   # Is the APR input a float that looks suspect (converted perhaps)?
   elsif num.to_f.to_s == num && num.to_f < 1
     low_apr(num)
