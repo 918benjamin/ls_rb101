@@ -13,6 +13,15 @@ end
 
 def print_welcome
   prompt("Welcome to this Rock Paper Scissors Spock Lizard game")
+  puts "\n"
+end
+
+def print_game_number(games)
+  prompt("Game #{games}")
+end
+
+def print_scores(player_score, computer_score)
+  prompt("Your score: #{player_score}. Computer's score: #{computer_score}")
 end
 
 def get_choice
@@ -31,24 +40,6 @@ def get_choice
   end
 end
 
-def abbrev_choice(choice)
-  # You give the first letter or 2 letters of a choice
-  # If one of the VALID_CHOICES starts with that letter(s), return that element
-  # Otherwise, return the invalid choice prompt
-end
-
-# def win?(first, second)
-#   (first == 'rock' && second == 'scissors') ||
-#     (first == 'paper' && second == 'rock') ||
-#     (first == 'scissors' && second == 'paper') ||
-#     (first == 'rock' && second == 'lizard') ||
-#     (first == 'lizard' && second == 'spock') ||
-#     (first == 'spock' && second == 'scissors') ||
-#     (first == 'scissors' && second == 'lizard') ||
-#     (first == 'lizard' && second == 'paper') ||
-#     (first == 'paper' && second == 'spock')
-# end
-
 def win?(first, second)
   (first == 'rock' && (second == 'scissors' || second == 'lizard')) ||
     (first == 'paper' && (second == 'rock' || second == 'spock')) ||
@@ -57,14 +48,34 @@ def win?(first, second)
     (first == 'spock' && (second == 'scissors' || second == 'rock'))
 end
 
-def display_results(player, computer)
-  prompt("You chose: #{player}. Computer chose: #{computer}.")
+def calculate_results(player, computer)
   if win?(player, computer)
-    prompt('You won!')
+    'player'
   elsif win?(computer, player)
-    prompt('Computer won!')
+    'computer'
   else
-    prompt("It's a tie!")
+    'tie'
+  end
+end
+
+def display_results(player, computer, winner)
+  prompt("You chose: #{player}. Computer chose: #{computer}.")
+  case winner
+  when 'player' then prompt('You won!')
+  when 'computer' then prompt('Computer won!')
+  when 'tie' then prompt("It's a tie!")
+  end
+end
+
+def grand_winner_chosen?(player_score, computer_score)
+  player_score == 5 || computer_score == 5
+end
+
+def print_grand_winner(player_score)
+  if player_score == 5
+    prompt("You are the grand winner! Congrats")
+  else
+    prompt("Sorry, the computer is the grand winner this time.")
   end
 end
 
@@ -83,13 +94,36 @@ clear_screen
 print_welcome
 
 loop do
-  choice = get_choice
-  computer_choice = VALID_CHOICES.sample
+  # --- Initialize game count and score --- #
+  games = 1
+  player_score = 0
+  computer_score = 0
 
-  display_results(choice, computer_choice)
+  # --- Main Game (Until someone scores 5) --- #
+  loop do
+    print_game_number(games)
+
+    choice = get_choice
+    computer_choice = VALID_CHOICES.sample
+
+    winner = calculate_results(choice, computer_choice)
+    display_results(choice, computer_choice, winner)
+
+    case winner
+    when 'player' then player_score += 1
+    when 'computer' then computer_score += 1
+    end
+    print_scores(player_score, computer_score)
+
+    break if grand_winner_chosen?(player_score, computer_score)
+    
+    puts "\n"
+    games += 1
+  end
+  puts "\n"
+  print_grand_winner(player_score)
 
   break unless play_again?
-
   clear_screen
 end
 
