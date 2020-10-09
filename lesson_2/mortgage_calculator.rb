@@ -4,8 +4,7 @@ MESSAGE = YAML.load_file('mortgage_calculator_messages.yml')
 
 # Method definitions
 def clear_screen
-  system 'clear' # for Linux and Mac system users
-  system 'cls' # For Windows system users
+  system('clear') || system('cls')
 end
 
 def prompt(text)
@@ -21,13 +20,13 @@ def valid_number?(num)
   num.to_i.to_s == num
 end
 
-def not_zero?(num)
+def above_zero?(num)
   num.to_f > 0
 end
 
 def valid_apr?(num)
   # Is the APR input an integer > 0?
-  if valid_number?(num) && not_zero?(num)
+  if valid_number?(num) && above_zero?(num) && num.to_f < 100
     true
   # Is the APR input a float that looks suspect (converted perhaps)?
   elsif num.to_f.to_s == num && num.to_f < 1
@@ -43,10 +42,10 @@ def low_apr(num)
   loop do
     prompt(MESSAGE['low_apr'])
     prompt("Your APR is #{num}%? (Confirm Y/N)")
-    response = gets.chomp
-    if response.downcase.start_with?('y')
+    response = gets.chomp.downcase
+    if response == 'y' || response == 'yes'
       return num.to_f.to_s == num && num.to_f > 0
-    elsif response.downcase.start_with?('n')
+    elsif response =='n' || response == 'no'
       return false
     else
       prompt(MESSAGE['invalid_response'])
@@ -58,7 +57,7 @@ def get_principal
   loop do
     prompt(MESSAGE['get_loan_amount'])
     principal = gets.chomp
-    if valid_number?(principal) && not_zero?(principal)
+    if valid_number?(principal) && above_zero?(principal)
       return principal.to_i
     else
       prompt(MESSAGE['invalid_loan'])
@@ -81,9 +80,9 @@ end
 def get_years
   loop do
     prompt(MESSAGE['get_years'])
-    loan_years = gets.chomp
-    if valid_number?(loan_years)
-      return loan_years.to_i
+    years = gets.chomp
+    if valid_number?(years) && years.to_i < 99 && years.to_i >= 0
+      return years.to_i
     else
       prompt(MESSAGE['invalid_years'])
     end
@@ -93,9 +92,9 @@ end
 def get_months
   loop do
     prompt(MESSAGE['get_months'])
-    loan_months = gets.chomp
-    if valid_number?(loan_months)
-      return loan_months.to_i
+    months = gets.chomp
+    if valid_number?(months) && months.to_i < 13 && months.to_i >= 0
+      return months.to_i
     else
       prompt(MESSAGE['invalid_months'])
     end
@@ -133,12 +132,11 @@ end
 def calculate_again?
   loop do
     prompt(MESSAGE['again?'])
-    response = gets.chomp
-    if response.downcase.start_with?('y')
-      return true
-    elsif response.downcase.start_with?('n')
-      clear_screen
-      return prompt(MESSAGE['goodbye'])
+    response = gets.chomp.downcase
+    if response == 'y' || response == 'yes'
+      break true
+    elsif response =='n' || response == 'no'
+      break false
     else
       prompt(MESSAGE['invalid_response'])
     end
@@ -164,3 +162,7 @@ loop do
 
   clear_screen
 end
+
+clear_screen
+
+return prompt(MESSAGE['goodbye'])
