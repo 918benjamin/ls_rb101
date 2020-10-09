@@ -4,8 +4,7 @@ RULES = { 'rock' => ['scissors', 'lizard'],
           'paper' => ['rock', 'spock'],
           'scissors' => ['paper', 'lizard'],
           'spock' => ['rock', 'scissors'],
-          'lizard' => ['paper', 'spock']
-}
+          'lizard' => ['paper', 'spock'] }
 MAX_SCORE = 5
 
 # --- Method Definitions --- #
@@ -93,9 +92,15 @@ def print_grand_winner(tally)
 end
 
 def play_again?
-  prompt("Do you want to play again?")
-  answer = gets.chomp
-  answer.downcase.start_with?('y')
+  loop do
+    prompt("Do you want to play again? (Y/N)")
+    answer = gets.chomp.downcase
+    case answer
+    when 'y', 'yes' then break true
+    when 'n', 'no' then break false
+    else puts "I don't understand. Answer yes or no (y or n work too)"
+    end
+  end
 end
 
 def print_bye
