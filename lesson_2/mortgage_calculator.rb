@@ -45,7 +45,7 @@ def low_apr(num)
     response = gets.chomp.downcase
     if response == 'y' || response == 'yes'
       return num.to_f.to_s == num && num.to_f > 0
-    elsif response =='n' || response == 'no'
+    elsif response == 'n' || response == 'no'
       return false
     else
       prompt(MESSAGE['invalid_response'])
@@ -135,7 +135,7 @@ def calculate_again?
     response = gets.chomp.downcase
     if response == 'y' || response == 'yes'
       break true
-    elsif response =='n' || response == 'no'
+    elsif response == 'n' || response == 'no'
       break false
     else
       prompt(MESSAGE['invalid_response'])
