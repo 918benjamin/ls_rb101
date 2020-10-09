@@ -84,6 +84,7 @@ def grand_winner_chosen?(tally)
 end
 
 def print_grand_winner(tally)
+  puts "\n"
   if tally[:player] == MAX_SCORE
     prompt("You are the grand winner! Wow, I cannot believe you beat me.")
   else
@@ -133,7 +134,6 @@ loop do
     next_game(tally)
   end
 
-  puts "\n"
   print_grand_winner(tally)
 
   break unless play_again?
