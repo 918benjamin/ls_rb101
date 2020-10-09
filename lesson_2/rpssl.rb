@@ -1,10 +1,16 @@
 # --- Constants --- #
 VALID_CHOICES = %w(rock paper scissors spock lizard)
+RULES = { 'rock' => ['scissors', 'lizard'],
+          'paper' => ['rock', 'spock'],
+          'scissors' => ['paper', 'lizard'],
+          'spock' => ['rock', 'scissors'],
+          'lizard' => ['paper', 'spock']
+}
+MAX_SCORE = 5
 
 # --- Method Definitions --- #
 def clear_screen
-  system 'clear' # Linux / Mac
-  system 'cls' # Windows
+  system('clear') || system('cls')
 end
 
 def prompt(message)
@@ -13,6 +19,8 @@ end
 
 def print_welcome
   prompt("Welcome to this Rock Paper Scissors Spock Lizard game")
+  prompt("Can you get #{MAX_SCORE} win#{'s' if MAX_SCORE > 1} before me?")
+  prompt("We'll see... Let's get started!")
   puts "\n"
 end
 
@@ -20,14 +28,14 @@ def print_game_number(games)
   prompt("Game #{games}")
 end
 
-def print_scores(player_score, computer_score)
-  prompt("Your score: #{player_score}. Computer's score: #{computer_score}")
+def print_scores(tally)
+  prompt("Your score: #{tally[:player]}. My score: #{tally[:computer]}")
 end
 
 def get_choice
   loop do
     prompt("Choose one: #{VALID_CHOICES.join(', ')}")
-    input = gets.chomp
+    input = gets.chomp.downcase
 
     choice = VALID_CHOICES.select { |element| element.start_with?(input) }
     if choice.size == 1
@@ -41,11 +49,7 @@ def get_choice
 end
 
 def win?(first, second)
-  (first == 'rock' && (second == 'scissors' || second == 'lizard')) ||
-    (first == 'paper' && (second == 'rock' || second == 'spock')) ||
-    (first == 'scissors' && (second == 'paper' || second == 'lizard')) ||
-    (first == 'lizard' && (second == 'spock' || second == 'paper')) ||
-    (first == 'spock' && (second == 'scissors' || second == 'rock'))
+  RULES[first].include?(second)
 end
 
 def calculate_results(player, computer)
@@ -58,24 +62,33 @@ def calculate_results(player, computer)
   end
 end
 
+def update_scores(tally, winner)
+  tally[winner.to_sym] += 1
+end
+
 def display_results(player, computer, winner)
-  prompt("You chose: #{player}. Computer chose: #{computer}.")
+  prompt("You chose: #{player}. I chose: #{computer}.")
   case winner
   when 'player' then prompt('You won!')
-  when 'computer' then prompt('Computer won!')
+  when 'computer' then prompt('I won!')
   when 'tie' then prompt("It's a tie!")
   end
 end
 
-def grand_winner_chosen?(player_score, computer_score)
-  player_score == 5 || computer_score == 5
+def next_game(tally)
+  puts "\n"
+  tally[:games] += 1
 end
 
-def print_grand_winner(player_score)
-  if player_score == 5
-    prompt("You are the grand winner! Congrats")
+def grand_winner_chosen?(tally)
+  tally[:player] == MAX_SCORE || tally[:computer] == MAX_SCORE
+end
+
+def print_grand_winner(tally)
+  if tally[:player] == MAX_SCORE
+    prompt("You are the grand winner! Wow, I cannot believe you beat me.")
   else
-    prompt("Sorry, the computer is the grand winner this time.")
+    prompt("Sorry, I'm the grand winner this time. Better luck next time!")
   end
 end
 
@@ -95,13 +108,11 @@ print_welcome
 
 loop do
   # --- Initialize game count and score --- #
-  games = 1
-  player_score = 0
-  computer_score = 0
+  tally = { games: 1, player: 0, computer: 0, tie: 0 }
 
-  # --- Main Game (Until someone scores 5) --- #
+  # --- Main Game (Until someone scores MAX_SCORE) --- #
   loop do
-    print_game_number(games)
+    print_game_number(tally[:games])
 
     choice = get_choice
     computer_choice = VALID_CHOICES.sample
@@ -109,19 +120,16 @@ loop do
     winner = calculate_results(choice, computer_choice)
     display_results(choice, computer_choice, winner)
 
-    case winner
-    when 'player' then player_score += 1
-    when 'computer' then computer_score += 1
-    end
-    print_scores(player_score, computer_score)
+    update_scores(tally, winner)
+    print_scores(tally)
 
-    break if grand_winner_chosen?(player_score, computer_score)
-    
-    puts "\n"
-    games += 1
+    break if grand_winner_chosen?(tally)
+
+    next_game(tally)
   end
+
   puts "\n"
-  print_grand_winner(player_score)
+  print_grand_winner(tally)
 
   break unless play_again?
   clear_screen
