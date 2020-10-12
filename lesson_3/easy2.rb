@@ -134,3 +134,5 @@ statement.chars.count('t')
 title = "Flintstone Family Members"
 spaces = (40 - title.length) / 2
 title = (" " * spaces) + title + (" " * spaces)
+
+# Solution uses the String#center method
