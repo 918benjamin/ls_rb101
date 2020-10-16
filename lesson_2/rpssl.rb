@@ -16,22 +16,33 @@ def prompt(message)
   puts("=> #{message}")
 end
 
+def new_lines
+  puts "\r"
+  puts "\r"
+  puts "\r"
+end
+
 def print_welcome
   prompt("Welcome to this Rock Paper Scissors Spock Lizard game")
   prompt("Can you get #{MAX_SCORE} win#{'s' if MAX_SCORE > 1} before me?")
   prompt("We'll see... Let's get started!")
-  puts "\n"
+  puts "\r"
+  prompt("You can select rock, paper, scissors, spock, or lizard.")
+  prompt("Use the full world or 1st letter (2 letters for scissors/spock)")
+  prompt("Example: type 'r' to select 'rock'")
+  prompt("Exmaple: type 'sc' to select 'scissors'")
+  new_lines
 end
 
 def print_game_number(games)
   prompt("Game #{games}")
 end
 
-def print_scores(tally)
-  prompt("Your score: #{tally[:player]}. My score: #{tally[:computer]}")
+def print_scores(scores)
+  prompt("Your score: #{scores[:player]}. My score: #{scores[:computer]}")
 end
 
-def get_choice
+def get_user_move
   loop do
     prompt("Choose one: #{VALID_CHOICES.join(', ')}")
     input = gets.chomp.downcase
@@ -47,11 +58,15 @@ def get_choice
   end
 end
 
+def get_computer_move
+  VALID_CHOICES.sample
+end
+
 def win?(first, second)
   RULES[first].include?(second)
 end
 
-def calculate_results(player, computer)
+def determine_winner(player, computer)
   if win?(player, computer)
     'player'
   elsif win?(computer, player)
@@ -61,8 +76,8 @@ def calculate_results(player, computer)
   end
 end
 
-def update_scores(tally, winner)
-  tally[winner.to_sym] += 1
+def update_scores(scores, winner)
+  scores[winner.to_sym] += 1
 end
 
 def display_results(player, computer, winner)
@@ -74,18 +89,17 @@ def display_results(player, computer, winner)
   end
 end
 
-def next_game(tally)
-  puts "\n"
-  tally[:games] += 1
+def next_game(games)
+  games[0] += 1
 end
 
-def grand_winner_chosen?(tally)
-  tally[:player] == MAX_SCORE || tally[:computer] == MAX_SCORE
+def game_won?(scores)
+  scores[:player] == MAX_SCORE || scores[:computer] == MAX_SCORE
 end
 
-def print_grand_winner(tally)
-  puts "\n"
-  if tally[:player] == MAX_SCORE
+def print_grand_winner(scores)
+  puts "\r"
+  if scores[:player] == MAX_SCORE
     prompt("You are the grand winner! Wow, I cannot believe you beat me.")
   else
     prompt("Sorry, I'm the grand winner this time. Better luck next time!")
@@ -114,27 +128,29 @@ print_welcome
 
 loop do
   # --- Initialize game count and score --- #
-  tally = { games: 1, player: 0, computer: 0, tie: 0 }
+  scores = { player: 0, computer: 0, tie: 0 }
+  games = [1]
 
   # --- Main Game (Until someone scores MAX_SCORE) --- #
   loop do
-    print_game_number(tally[:games])
+    print_game_number(games[0])
 
-    choice = get_choice
-    computer_choice = VALID_CHOICES.sample
+    user_move = get_user_move
+    computer_move = get_computer_move
 
-    winner = calculate_results(choice, computer_choice)
-    display_results(choice, computer_choice, winner)
+    winner = determine_winner(user_move, computer_move)
+    display_results(user_move, computer_move, winner)
 
-    update_scores(tally, winner)
-    print_scores(tally)
+    update_scores(scores, winner)
+    print_scores(scores)
 
-    break if grand_winner_chosen?(tally)
+    break if game_won?(scores)
 
-    next_game(tally)
+    next_game(games)
+    new_lines
   end
 
-  print_grand_winner(tally)
+  print_grand_winner(scores)
 
   break unless play_again?
   clear_screen
