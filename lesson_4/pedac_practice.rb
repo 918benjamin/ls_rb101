@@ -27,6 +27,9 @@ Understand the problem
   - Palindrome is the same backwards and forwards
 - questions / clarify
   - What if there are numbers in the string?
+  - What is a substring?
+  - Whatis a palindrome?
+  - What does it mean to consider palindrome words case sensitive?
 
 Data structures
 - Input: string
