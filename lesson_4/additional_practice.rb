@@ -209,3 +209,6 @@ munsters.each do |key, value|
 end
 
 p munsters
+
+# Solution suggests using a case statement with ranges. I thought about
+# using case, but couldn't think of how to compare it.
