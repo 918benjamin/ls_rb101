@@ -72,8 +72,27 @@ def player_places_piece!(brd)
   brd[square] = PLAYER_MARKER
 end
 
+def immediate_threat?(brd)
+  WINNING_LINES.each do |line|
+    return true if brd.values_at(*line).count(PLAYER_MARKER) == 2
+  end
+  false
+end
+
+def defensive_move(brd)
+  WINNING_LINES.each do |line|
+    if brd.values_at(*line).count(PLAYER_MARKER) == 2
+      line.each { |square| return square if brd[square] == ' ' }
+    end
+  end
+end
+
 def computer_places_piece!(brd)
-  square = empty_squares(brd).sample
+  if immediate_threat?(brd) && brd[defensive_move(brd)] == ' '
+    square = defensive_move(brd)
+  else
+    square = empty_squares(brd).sample
+  end
   brd[square] = COMPUTER_MARKER
 end
 
