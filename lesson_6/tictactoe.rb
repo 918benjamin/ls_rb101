@@ -103,8 +103,7 @@ def offensive_move(brd)
 end
 
 def computer_places_piece!(brd)
-  if
-    win_chance?(brd) && brd[offensive_move(brd)] == ' '
+  if win_chance?(brd) && brd[offensive_move(brd)] == ' '
     square = offensive_move(brd)
   elsif immediate_threat?(brd) && brd[defensive_move(brd)] == ' '
     square = defensive_move(brd)
