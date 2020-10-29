@@ -8,6 +8,7 @@ WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
                 [[1, 5, 9], [3, 5, 7]]              # diagonals
 MAX_WINS = 5
+FIRST_MOVE = 'choose'
 
 def clear_screen
   system 'clear'
@@ -18,7 +19,7 @@ def prompt(msg)
   puts "=> #{msg}"
 end
 
-def welcome_user
+def welcome_user # TODO - Use it or lose it
   prompt "Welcome to Tic Tac Toe!"
   prompt "The first player to #{MAX_WINS} wins game!"
 end
@@ -30,6 +31,28 @@ def joinor(arr, delim=', ', conj='or')
     last_item = arr.pop
     arr.join(delim) + delim + conj + ' ' + last_item.to_s
   end
+end
+
+def decide_player_order
+  case FIRST_MOVE
+  when 'player' then ['player', 'computer']
+  when 'computer' then ['computer', 'player']
+  when 'choose' then choose_first_player
+  else print "Invalid constant for FIRST_MOVE"
+  end
+end
+
+def choose_first_player
+  player_one = ''
+  player_array = ['player', 'computer']
+  loop do
+    prompt "Who should go first? Enter 'player' for you or 'computer'"
+    player_one = gets.chomp
+    break if player_one == 'player' || player_one == 'computer'
+  end
+  player_array.delete(player_one)
+  player_two = player_array.join
+  [player_one, player_two]
 end
 
 # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
@@ -115,9 +138,9 @@ end
 def detect_winner(brd)
   WINNING_LINES.each do |line|
     if brd.values_at(*line).count(PLAYER_MARKER) == 3
-      return 'Player'
+      return 'player'
     elsif brd.values_at(*line).count(COMPUTER_MARKER) == 3
-      return 'Computer'
+      return 'computer'
     end
   end
   nil
@@ -128,26 +151,26 @@ def update_score(scores, winner)
 end
 
 def determine_grand_winner(scores)
-  if scores["Player"] > scores['Computer']
-    'Player'
-  elsif scores["Computer"] > scores['Player']
-    'Computer'
+  if scores["player"] > scores['computer']
+    'player'
+  elsif scores["computer"] > scores['player']
+    'computer'
   else
-    'Tie'
+    'tie'
   end
 end
 
 def declare_grand_winner(scores)
   clear_screen
   puts "Final score:"
-  puts "You won #{scores['Player']} games" # TODO - handle if this is just one (1 games is wrong)
-  puts "Computer won #{scores['Computer']} games" # TODO - handle if this is just one (1 games is wrong)
+  puts "You won #{scores['player']} games" # TODO - handle if this is just one (1 games is wrong)
+  puts "Computer won #{scores['computer']} games" # TODO - handle if this is just one (1 games is wrong)
   case determine_grand_winner(scores)
-  when 'Player'
+  when 'player'
     puts "That means you are the grand winner! Congrats!"
-  when 'Computer'
+  when 'computer'
     puts "That means the computer is the grand winner. Bummer!"
-  when 'Tie'
+  when 'tie'
     puts "That's a tie! Better play again to see who is really the best."
   end
   puts ""
@@ -155,8 +178,9 @@ end
 
 ### GAME PLAY STARTS HERE ###
 loop do
-  scores = { "Player" => 0, "Computer" => 0 }
+  scores = { "player" => 0, "computer" => 0 }
   games = 1
+  player_order = decide_player_order # TODO - Let them choose up front, then let the loser go first each other time
 
   loop do
     board = initialize_board
@@ -164,17 +188,25 @@ loop do
     loop do
       display_board(board, games)
 
-      player_places_piece!(board)
+      case player_order.first
+      when 'player' then player_places_piece!(board)
+      when 'computer' then computer_places_piece!(board)
+      end
+
       break if someone_won?(board) || board_full?(board)
 
-      computer_places_piece!(board)
+      case player_order.last
+      when 'player' then player_places_piece!(board)
+      when 'computer' then computer_places_piece!(board)
+      end
+
       break if someone_won?(board) || board_full?(board)
     end
 
     display_board(board, games)
 
     if someone_won?(board)
-      prompt("#{detect_winner(board)} won!")
+      prompt("#{detect_winner(board)} won!") # TODO - This should really say "you won, not player won"
       update_score(scores, detect_winner(board))
     else
       prompt "It's a tie!"
@@ -182,7 +214,7 @@ loop do
 
     games += 1
 
-    break if scores["Player"] == MAX_WINS || scores["Computer"] == MAX_WINS
+    break if scores["player"] == MAX_WINS || scores["computer"] == MAX_WINS
 
     prompt "Hit enter to continue to game ##{games} or 'quit' to stop."
     next_game = gets.chomp.downcase
