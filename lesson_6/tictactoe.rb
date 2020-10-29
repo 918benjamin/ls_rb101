@@ -32,7 +32,7 @@ def joinor(arr, delim=', ', conj='or')
   end
 end
 
-# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength, Metrics/AbcSize
 def display_board(brd, games)
   clear_screen
   puts "Game ##{games}"
@@ -51,7 +51,7 @@ def display_board(brd, games)
   puts "     |     |"
   puts ""
 end
-# rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
 def initialize_board
   new_board = {}
@@ -96,6 +96,8 @@ def computer_places_piece!(brd)
            elsif trigger_specific_move?(brd, PLAYER_MARKER) &&
                  brd[ai_move(brd, PLAYER_MARKER)] == ' '
              ai_move(brd, PLAYER_MARKER)
+           elsif brd[5] == ' '
+             5
            else
              empty_squares(brd).sample
            end
