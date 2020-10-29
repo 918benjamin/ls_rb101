@@ -32,8 +32,10 @@ def joinor(arr, delim=', ', conj='or')
   end
 end
 
-# rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-def display_board(brd)
+# rubocop:disable Metrics/AbcSize
+def display_board(brd, games)
+  clear_screen
+  puts "Game ##{games}"
   puts "You're a #{PLAYER_MARKER}. Computer is #{COMPUTER_MARKER}"
   puts ""
   puts "     |     |"
@@ -49,7 +51,7 @@ def display_board(brd)
   puts "     |     |"
   puts ""
 end
-# rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+# rubocop:enable Metrics/AbcSize
 
 def initialize_board
   new_board = {}
@@ -88,15 +90,15 @@ def ai_move(brd, marker)
 end
 
 def computer_places_piece!(brd)
-  if trigger_specific_move?(brd, COMPUTER_MARKER) &&
-     brd[ai_move(brd, COMPUTER_MARKER)] == ' '
-    square = ai_move(brd, COMPUTER_MARKER)
-  elsif trigger_specific_move?(brd, PLAYER_MARKER) &&
-        brd[ai_move(brd, PLAYER_MARKER)] == ' '
-    square = ai_move(brd, PLAYER_MARKER)
-  else
-    square = empty_squares(brd).sample
-  end
+  square = if trigger_specific_move?(brd, COMPUTER_MARKER) &&
+              brd[ai_move(brd, COMPUTER_MARKER)] == ' '
+             ai_move(brd, COMPUTER_MARKER)
+           elsif trigger_specific_move?(brd, PLAYER_MARKER) &&
+                 brd[ai_move(brd, PLAYER_MARKER)] == ' '
+             ai_move(brd, PLAYER_MARKER)
+           else
+             empty_squares(brd).sample
+           end
   brd[square] = COMPUTER_MARKER
 end
 
@@ -134,9 +136,10 @@ def determine_grand_winner(scores)
 end
 
 def declare_grand_winner(scores)
+  clear_screen
   puts "Final score:"
-  puts "You won #{scores['Player']} games"
-  puts "Computer won #{scores['Computer']} games"
+  puts "You won #{scores['Player']} games" # TODO - handle if this is just one (1 games is wrong)
+  puts "Computer won #{scores['Computer']} games" # TODO - handle if this is just one (1 games is wrong)
   case determine_grand_winner(scores)
   when 'Player'
     puts "That means you are the grand winner! Congrats!"
@@ -145,20 +148,19 @@ def declare_grand_winner(scores)
   when 'Tie'
     puts "That's a tie! Better play again to see who is really the best."
   end
+  puts ""
 end
 
 ### GAME PLAY STARTS HERE ###
 loop do
-  scores = {"Player" => 0, "Computer" => 0}
+  scores = { "Player" => 0, "Computer" => 0 }
   games = 1
 
   loop do
     board = initialize_board
 
     loop do
-      clear_screen
-      puts "Game ##{games}"
-      display_board(board)
+      display_board(board, games)
 
       player_places_piece!(board)
       break if someone_won?(board) || board_full?(board)
@@ -166,9 +168,8 @@ loop do
       computer_places_piece!(board)
       break if someone_won?(board) || board_full?(board)
     end
-    
-    clear_screen
-    display_board(board)
+
+    display_board(board, games)
 
     if someone_won?(board)
       prompt("#{detect_winner(board)} won!")
@@ -188,7 +189,7 @@ loop do
 
   declare_grand_winner(scores)
 
-  prompt "Play again? (y or n)"
+  prompt "Play again? (y for yes, anything else for no)"
   answer = gets.chomp
   break unless answer.downcase.start_with?('y')
 end
