@@ -72,41 +72,28 @@ def player_places_piece!(brd)
   brd[square] = PLAYER_MARKER
 end
 
-def immediate_threat?(brd)
+def trigger_specific_move?(brd, marker)
   WINNING_LINES.each do |line|
-    return true if brd.values_at(*line).count(PLAYER_MARKER) == 2
+    return true if brd.values_at(*line).count(marker) == 2
   end
   false
 end
 
-def defensive_move(brd)
+def ai_move(brd, marker)
   WINNING_LINES.each do |line|
-    if brd.values_at(*line).count(PLAYER_MARKER) == 2
-      line.each { |square| return square if brd[square] == ' ' }
-    end
-  end
-end
-
-def win_chance?(brd)
-  WINNING_LINES.each do |line|
-    return true if brd.values_at(*line).count(COMPUTER_MARKER) == 2
-  end
-  false
-end
-
-def offensive_move(brd)
-  WINNING_LINES.each do |line|
-    if brd.values_at(*line).count(COMPUTER_MARKER) == 2
+    if brd.values_at(*line).count(marker) == 2
       line.each { |square| return square if brd[square] == ' ' }
     end
   end
 end
 
 def computer_places_piece!(brd)
-  if win_chance?(brd) && brd[offensive_move(brd)] == ' '
-    square = offensive_move(brd)
-  elsif immediate_threat?(brd) && brd[defensive_move(brd)] == ' '
-    square = defensive_move(brd)
+  if trigger_specific_move?(brd, COMPUTER_MARKER) &&
+     brd[ai_move(brd, COMPUTER_MARKER)] == ' '
+    square = ai_move(brd, COMPUTER_MARKER)
+  elsif trigger_specific_move?(brd, PLAYER_MARKER) &&
+        brd[ai_move(brd, PLAYER_MARKER)] == ' '
+    square = ai_move(brd, PLAYER_MARKER)
   else
     square = empty_squares(brd).sample
   end
