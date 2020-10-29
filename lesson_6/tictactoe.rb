@@ -7,9 +7,20 @@ COMPUTER_MARKER = 'O'
 WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
                 [[1, 5, 9], [3, 5, 7]]              # diagonals
+MAX_WINS = 5
+
+def clear_screen
+  system 'clear'
+  system 'cls'
+end
 
 def prompt(msg)
   puts "=> #{msg}"
+end
+
+def welcome_user
+  prompt "Welcome to Tic Tac Toe!"
+  prompt "The first player to #{MAX_WINS} wins game!"
 end
 
 def joinor(arr, delim=', ', conj='or')
@@ -23,8 +34,6 @@ end
 
 # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
 def display_board(brd)
-  system 'clear'
-  system 'cls'
   puts "You're a #{PLAYER_MARKER}. Computer is #{COMPUTER_MARKER}"
   puts ""
   puts "     |     |"
@@ -87,26 +96,74 @@ def detect_winner(brd)
   nil
 end
 
+def update_score(scores, winner)
+  scores[winner] += 1
+end
+
+def determine_grand_winner(scores)
+  if scores["Player"] > scores['Computer']
+    'Player'
+  elsif scores["Computer"] > scores['Player']
+    'Computer'
+  else
+    'Tie'
+  end
+end
+
+def declare_grand_winner(scores)
+  puts "Final score:"
+  puts "You won #{scores['Player']} games"
+  puts "Computer won #{scores['Computer']} games"
+  case determine_grand_winner(scores)
+  when 'Player'
+    puts "That means you are the grand winner! Congrats!"
+  when 'Computer'
+    puts "That means the computer is the grand winner. Bummer!"
+  when 'Tie'
+    puts "That's a tie! Better play again to see who is really the best."
+  end
+end
+
+### GAME PLAY STARTS HERE ###
 loop do
-  board = initialize_board
+  scores = {"Player" => 0, "Computer" => 0}
+  games = 1
 
   loop do
+    board = initialize_board
+
+    loop do
+      clear_screen
+      puts "Game ##{games}"
+      display_board(board)
+
+      player_places_piece!(board)
+      break if someone_won?(board) || board_full?(board)
+
+      computer_places_piece!(board)
+      break if someone_won?(board) || board_full?(board)
+    end
+    
+    clear_screen
     display_board(board)
 
-    player_places_piece!(board)
-    break if someone_won?(board) || board_full?(board)
+    if someone_won?(board)
+      prompt("#{detect_winner(board)} won!")
+      update_score(scores, detect_winner(board))
+    else
+      prompt "It's a tie!"
+    end
 
-    computer_places_piece!(board)
-    break if someone_won?(board) || board_full?(board)
+    games += 1
+
+    break if scores["Player"] == MAX_WINS || scores["Computer"] == MAX_WINS
+
+    prompt "Hit enter to continue to game ##{games} or 'quit' to stop."
+    next_game = gets.chomp.downcase
+    break if next_game.start_with?('q')
   end
 
-  display_board(board)
-
-  if someone_won?(board)
-    prompt("#{detect_winner(board)} won!")
-  else
-    prompt "It's a tie!"
-  end
+  declare_grand_winner(scores)
 
   prompt "Play again? (y or n)"
   answer = gets.chomp
