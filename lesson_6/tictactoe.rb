@@ -174,7 +174,11 @@ end
 
 def declare_round_winner(brd, scores)
   if someone_won?(brd)
-    prompt("#{detect_winner(brd)} won!") # TODO - This should really say "you won, not player won" so extract this out to a method
+    winner = detect_winner(brd)
+    case winner
+    when 'player' then prompt("You won this game!")
+    when 'computer' then prompt("Computer won this game!")
+    end
     update_score(scores, detect_winner(brd))
   else
     prompt "It's a tie!"
@@ -233,7 +237,7 @@ welcome_user
 loop do # Multi-game grand winner loop
   scores = { "player" => 0, "computer" => 0 }
   games = 1
-  player_order = decide_player_order # TODO - Let them choose up front, then let the loser go first each other time
+  player_order = decide_player_order
 
   loop do # Single game loop
     board = initialize_board
