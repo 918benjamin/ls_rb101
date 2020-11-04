@@ -187,7 +187,7 @@ loop do
 
     loop do
       display_board(board, games)
-      # binding.pry
+      
       case player_order.first
       when 'player' then player_places_piece!(board)
       when 'computer'
