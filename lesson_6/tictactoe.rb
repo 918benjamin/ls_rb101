@@ -40,21 +40,22 @@ def joinor(arr, delim=', ', conj='or')
   end
 end
 
-def decide_player_order
+def initialize_player_order
   case FIRST_MOVE
   when 'player' then ['player', 'computer']
   when 'computer' then ['computer', 'player']
   when 'choose' then choose_first_player
-  else print "Invalid constant for FIRST_MOVE"
+  else ['player', 'computer']
   end
 end
 
 def choose_first_player
+  clear_screen
   player_one = ''
   player_array = ['player', 'computer']
   loop do
     prompt "Who should go first? Enter 'player' for you or 'computer' for me"
-    player_one = gets.chomp
+    player_one = gets.chomp.downcase
     break if player_one == 'player' || player_one == 'computer'
     prompt "Invalid selection."
   end
@@ -143,11 +144,7 @@ def place_piece!(brd, player)
 end
 
 def alternate_player(player, player_order)
-  if player == player_order[0]
-    player_order[1]
-  else
-    player_order[0]
-  end
+  player == player_order[0] ? player_order[1] : player_order[0]
 end
 
 def board_full?(brd)
@@ -165,20 +162,11 @@ def detect_winner(brd)
   nil
 end
 
-def someone_won?(brd)
-  !!detect_winner(brd)
-end
-
-def declare_round_winner(brd, scores)
-  if someone_won?(brd)
-    winner = detect_winner(brd)
-    case winner
-    when 'player' then puts "You won this game!"
-    when 'computer' then puts "I won this game!"
-    end
-    update_score(scores, winner)
-  else
-    prompt "It's a tie!"
+def declare_round_winner(winner)
+  case winner
+  when 'player' then puts "You won this game!"
+  when 'computer' then puts "I won this game!"
+  when nil then puts "It's a tie."
   end
 end
 
@@ -193,16 +181,14 @@ def quit_early?(games)
 end
 
 def update_score(scores, winner)
-  scores[winner] += 1
+  scores[winner] += 1 if !!winner
 end
 
 def determine_grand_winner(scores)
-  if scores["player"] > scores['computer']
-    'player'
-  elsif scores["computer"] > scores['player']
-    'computer'
-  else
-    'tie'
+  case scores["player"] <=> scores['computer']
+  when 1 then 'player'
+  when -1 then 'computer'
+  when 0 then 'tie'
   end
 end
 
@@ -235,7 +221,7 @@ welcome_user
 loop do # Multi-game grand winner loop
   scores = { "player" => 0, "computer" => 0 }
   games = 1
-  player_order = decide_player_order
+  player_order = initialize_player_order
 
   loop do # Single game loop
     board = initialize_board
@@ -245,12 +231,14 @@ loop do # Multi-game grand winner loop
       display_board(board, games)
       place_piece!(board, current_player)
       current_player = alternate_player(current_player, player_order)
-      break if someone_won?(board) || board_full?(board)
+      break if detect_winner(board) || board_full?(board)
     end
 
     display_board(board, games)
 
-    declare_round_winner(board, scores)
+    round_winner = detect_winner(board)
+    declare_round_winner(round_winner)
+    update_score(scores, round_winner)
 
     games += 1
 
