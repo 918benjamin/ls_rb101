@@ -181,6 +181,10 @@ def declare_round_winner(brd, scores)
   end
 end
 
+def loser_goes_first!(order, brd)
+  order.reverse! if detect_winner(brd) == order[0]
+end
+
 def quit_early?(games)
   prompt "Hit enter to continue to game ##{games} or 'q' to stop early."
   next_game = gets.chomp.downcase
@@ -251,6 +255,8 @@ loop do # Multi-game grand winner loop
     break if scores["player"] == MAX_WINS ||
       scores["computer"] == MAX_WINS ||
       quit_early?(games)
+
+    loser_goes_first!(player_order, board)
   end
 
   declare_grand_winner(scores)
