@@ -1,5 +1,5 @@
-# require 'pry'
-# require 'pry-byebug'
+require 'pry'
+require 'pry-byebug'
 
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
@@ -187,10 +187,12 @@ loop do
 
     loop do
       display_board(board, games)
-
+      # binding.pry
       case player_order.first
       when 'player' then player_places_piece!(board)
-      when 'computer' then computer_places_piece!(board)
+      when 'computer'
+        computer_places_piece!(board)
+        display_board(board, games)
       end
 
       break if someone_won?(board) || board_full?(board)
