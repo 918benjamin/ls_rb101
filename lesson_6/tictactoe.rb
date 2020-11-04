@@ -98,11 +98,11 @@ def player_places_piece!(brd)
   square = ''
   loop do
     prompt "Choose a square (#{joinor(empty_squares(brd))}):"
-    square = gets.chomp.to_i
+    square = gets.chomp.to_f
     break if empty_squares(brd).include?(square)
     prompt "Sorry, that's not a valid choice."
   end
-  brd[square] = PLAYER_MARKER
+  brd[square.to_i] = PLAYER_MARKER
 end
 
 def trigger_specific_move?(brd, marker)
@@ -173,10 +173,10 @@ def declare_round_winner(brd, scores)
   if someone_won?(brd)
     winner = detect_winner(brd)
     case winner
-    when 'player' then prompt("You won this game!")
-    when 'computer' then prompt("I won this game!")
+    when 'player' then puts "You won this game!"
+    when 'computer' then puts "I won this game!"
     end
-    update_score(scores, detect_winner(brd))
+    update_score(scores, winner)
   else
     prompt "It's a tie!"
   end
@@ -211,6 +211,7 @@ def declare_grand_winner(scores)
   puts "Final score:"
   puts "You won #{scores['player']} game#{scores['player'] == 1 ? '' : 's'}"
   puts "I won #{scores['computer']} game#{scores['computer'] == 1 ? '' : 's'}"
+  puts ""
   case determine_grand_winner(scores)
   when 'player'
     puts "That means you are the grand winner! Congrats!"
