@@ -1,5 +1,5 @@
-require 'pry'
-require 'pry-byebug'
+# require 'pry'
+# require 'pry-byebug'
 
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
@@ -20,8 +20,16 @@ def prompt(msg)
 end
 
 def welcome_user # TODO - Use it or lose it
-  prompt "Welcome to Tic Tac Toe!"
-  prompt "The first player to #{MAX_WINS} wins game!"
+  clear_screen
+  puts "Welcome to Tic Tac Toe!"
+  puts "Get 3 in a row before your opponent does to win a game."
+  puts "The first one to win #{MAX_WINS} games wins it all!"
+  puts ""
+end
+
+def say_goodbye
+  clear_screen
+  puts "Thanks for playing Tic Tac Toe! Goodbye."
 end
 
 def joinor(arr, delim=', ', conj='or')
@@ -49,6 +57,7 @@ def choose_first_player
     prompt "Who should go first? Enter 'player' for you or 'computer'"
     player_one = gets.chomp
     break if player_one == 'player' || player_one == 'computer'
+    prompt "Invalid selection."
   end
   player_array.delete(player_one)
   player_two = player_array.join
@@ -192,6 +201,8 @@ def declare_grand_winner(scores)
 end
 
 ### GAME PLAY STARTS HERE ###
+welcome_user
+
 loop do
   scores = { "player" => 0, "computer" => 0 }
   games = 1
@@ -211,7 +222,7 @@ loop do
     display_board(board, games)
 
     if someone_won?(board)
-      prompt("#{detect_winner(board)} won!") # TODO - This should really say "you won, not player won"
+      prompt("#{detect_winner(board)} won!") # TODO - This should really say "you won, not player won" so extract this out to a method
       update_score(scores, detect_winner(board))
     else
       prompt "It's a tie!"
@@ -221,7 +232,7 @@ loop do
 
     break if scores["player"] == MAX_WINS || scores["computer"] == MAX_WINS
 
-    prompt "Hit enter to continue to game ##{games} or 'quit' to stop."
+    prompt "Hit enter to continue to game ##{games} or 'q' to stop early."
     next_game = gets.chomp.downcase
     break if next_game.start_with?('q')
   end
@@ -233,4 +244,4 @@ loop do
   break unless answer.downcase.start_with?('y')
 end
 
-puts "Thanks for playing Tic Tac Toe! Goodbye."
+say_goodbye
