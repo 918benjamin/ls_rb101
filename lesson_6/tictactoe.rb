@@ -127,6 +127,21 @@ def computer_places_piece!(brd)
   brd[square] = COMPUTER_MARKER
 end
 
+def place_piece!(brd, player)
+  case player
+  when 'player' then player_places_piece!(brd)
+  when 'computer' then computer_places_piece!(brd)
+  end
+end
+
+def alternate_player(player, player_order)
+  if player == player_order[0]
+    player_order[1]
+  else
+    player_order[0]
+  end
+end
+
 def board_full?(brd)
   empty_squares(brd).empty?
 end
@@ -184,24 +199,12 @@ loop do
 
   loop do
     board = initialize_board
+    current_player = player_order.first
 
     loop do
       display_board(board, games)
-      
-      case player_order.first
-      when 'player' then player_places_piece!(board)
-      when 'computer'
-        computer_places_piece!(board)
-        display_board(board, games)
-      end
-
-      break if someone_won?(board) || board_full?(board)
-
-      case player_order.last
-      when 'player' then player_places_piece!(board)
-      when 'computer' then computer_places_piece!(board)
-      end
-
+      place_piece!(board, current_player)
+      current_player = alternate_player(current_player, player_order)
       break if someone_won?(board) || board_full?(board)
     end
 
@@ -230,4 +233,4 @@ loop do
   break unless answer.downcase.start_with?('y')
 end
 
-prompt "Thanks for playing Tic Tac Toe! Goodbye."
+puts "Thanks for playing Tic Tac Toe! Goodbye."
