@@ -8,7 +8,7 @@ WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
                 [[1, 5, 9], [3, 5, 7]]              # diagonals
 MAX_WINS = 5
-FIRST_MOVE = 'choose'
+FIRST_MOVE = 'player'
 
 def clear_screen
   system 'clear'
@@ -19,12 +19,14 @@ def prompt(msg)
   puts "=> #{msg}"
 end
 
-def welcome_user # TODO - Use it or lose it
+def welcome_user
   clear_screen
   puts "Welcome to Tic Tac Toe!"
   puts "Get 3 in a row before your opponent does to win a game."
   puts "The first one to win #{MAX_WINS} games wins it all!"
   puts ""
+  prompt "Press enter to start"
+  gets.chomp
 end
 
 def say_goodbye
@@ -68,7 +70,7 @@ end
 def display_board(brd, games)
   clear_screen
   puts "Game ##{games}"
-  puts "You're a #{PLAYER_MARKER}. Computer is #{COMPUTER_MARKER}"
+  puts "You're playing #{PLAYER_MARKER}. Computer is #{COMPUTER_MARKER}"
   puts ""
   puts "     |     |"
   puts "  #{brd[1]}  |  #{brd[2]}  |  #{brd[3]}  "
