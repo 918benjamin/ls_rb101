@@ -56,7 +56,7 @@ def choose_first_player
   player_one = ''
   player_array = ['player', 'computer']
   loop do
-    prompt "Who should go first? Enter 'player' for you or 'computer'"
+    prompt "Who should go first? Enter 'player' for you or 'computer' for me"
     player_one = gets.chomp
     break if player_one == 'player' || player_one == 'computer'
     prompt "Invalid selection."
@@ -70,7 +70,7 @@ end
 def display_board(brd, games)
   clear_screen
   puts "Game ##{games}"
-  puts "You're playing #{PLAYER_MARKER}. Computer is #{COMPUTER_MARKER}"
+  puts "You're playing #{PLAYER_MARKER}. I'm playing #{COMPUTER_MARKER}"
   puts ""
   puts "     |     |"
   puts "  #{brd[1]}  |  #{brd[2]}  |  #{brd[3]}  "
@@ -177,7 +177,7 @@ def declare_round_winner(brd, scores)
     winner = detect_winner(brd)
     case winner
     when 'player' then prompt("You won this game!")
-    when 'computer' then prompt("Computer won this game!")
+    when 'computer' then prompt("I won this game!")
     end
     update_score(scores, detect_winner(brd))
   else
@@ -212,13 +212,13 @@ end
 def declare_grand_winner(scores)
   clear_screen
   puts "Final score:"
-  puts "You won #{scores['player']} games" # TODO - handle if this is just one (1 games is wrong)
-  puts "Computer won #{scores['computer']} games" # TODO - handle if this is just one (1 games is wrong)
+  puts "You won #{scores['player']} game#{scores['player'] == 1 ? '' : 's'}"
+  puts "I won #{scores['computer']} game#{scores['computer'] == 1 ? '' : 's'}"
   case determine_grand_winner(scores)
   when 'player'
     puts "That means you are the grand winner! Congrats!"
   when 'computer'
-    puts "That means the computer is the grand winner. Bummer!"
+    puts "That means I'm the grand winner. Bummer for you!"
   when 'tie'
     puts "That's a tie! Better play again to see who is really the best."
   end
