@@ -8,7 +8,7 @@ WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
                 [[1, 5, 9], [3, 5, 7]]              # diagonals
 MAX_WINS = 5
-FIRST_MOVE = 'player'
+FIRST_MOVE = 'choose'
 
 def clear_screen
   system 'clear'
@@ -157,10 +157,6 @@ def board_full?(brd)
   empty_squares(brd).empty?
 end
 
-def someone_won?(brd)
-  !!detect_winner(brd)
-end
-
 def detect_winner(brd)
   WINNING_LINES.each do |line|
     if brd.values_at(*line).count(PLAYER_MARKER) == 3
@@ -170,6 +166,25 @@ def detect_winner(brd)
     end
   end
   nil
+end
+
+def someone_won?(brd)
+  !!detect_winner(brd)
+end
+
+def declare_round_winner(brd, scores)
+  if someone_won?(brd)
+    prompt("#{detect_winner(brd)} won!") # TODO - This should really say "you won, not player won" so extract this out to a method
+    update_score(scores, detect_winner(brd))
+  else
+    prompt "It's a tie!"
+  end
+end
+
+def quit_early?(games)
+  prompt "Hit enter to continue to game ##{games} or 'q' to stop early."
+  next_game = gets.chomp.downcase
+  next_game.start_with?('q') ? true : false
 end
 
 def update_score(scores, winner)
@@ -202,19 +217,25 @@ def declare_grand_winner(scores)
   puts ""
 end
 
+def play_again?
+  prompt "Play again? (y for yes, anything else for no)"
+  answer = gets.chomp
+  answer.downcase.start_with?('y') ? true : false
+end
+
 ### GAME PLAY STARTS HERE ###
 welcome_user
 
-loop do
+loop do # Multi-game grand winner loop
   scores = { "player" => 0, "computer" => 0 }
   games = 1
   player_order = decide_player_order # TODO - Let them choose up front, then let the loser go first each other time
 
-  loop do
+  loop do # Single game loop
     board = initialize_board
     current_player = player_order.first
 
-    loop do
+    loop do # Individual move loop
       display_board(board, games)
       place_piece!(board, current_player)
       current_player = alternate_player(current_player, player_order)
@@ -223,27 +244,18 @@ loop do
 
     display_board(board, games)
 
-    if someone_won?(board)
-      prompt("#{detect_winner(board)} won!") # TODO - This should really say "you won, not player won" so extract this out to a method
-      update_score(scores, detect_winner(board))
-    else
-      prompt "It's a tie!"
-    end
+    declare_round_winner(board, scores)
 
     games += 1
 
-    break if scores["player"] == MAX_WINS || scores["computer"] == MAX_WINS
-
-    prompt "Hit enter to continue to game ##{games} or 'q' to stop early."
-    next_game = gets.chomp.downcase
-    break if next_game.start_with?('q')
+    break if scores["player"] == MAX_WINS ||
+      scores["computer"] == MAX_WINS ||
+      quit_early?(games)
   end
 
   declare_grand_winner(scores)
 
-  prompt "Play again? (y for yes, anything else for no)"
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
+  break unless play_again?
 end
 
 say_goodbye
