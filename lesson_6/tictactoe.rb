@@ -1,6 +1,3 @@
-# require 'pry'
-# require 'pry-byebug'
-
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
@@ -257,8 +254,8 @@ loop do # Multi-game grand winner loop
     games += 1
 
     break if scores["player"] == MAX_WINS ||
-      scores["computer"] == MAX_WINS ||
-      quit_early?(games)
+             scores["computer"] == MAX_WINS ||
+             quit_early?(games)
 
     loser_goes_first!(player_order, board)
   end
