@@ -207,7 +207,7 @@ end
 
 def declare_grand_winner(scores)
   display_final_score(scores)
-  
+
   case determine_grand_winner(scores)
   when 'player'
     puts "That means you are the grand winner! Congrats!"
@@ -228,6 +228,14 @@ def play_again?
     prompt "Not sure what you meant there..."
   end
   answer.downcase.start_with?('y')
+end
+
+def update_games(games)
+  games += 1
+end
+
+def someone_won?(scores)
+  scores["player"] == MAX_WINS || scores["computer"] == MAX_WINS
 end
 
 ### GAME PLAY STARTS HERE ###
@@ -255,11 +263,9 @@ loop do # Multi-game grand winner loop
     declare_round_winner(round_winner)
     update_score(scores, round_winner)
 
-    games += 1
+    games = update_games(games)
 
-    break if scores["player"] == MAX_WINS ||
-             scores["computer"] == MAX_WINS ||
-             quit_early?(games)
+    break if someone_won?(scores) || quit_early?(games)
 
     loser_goes_first!(player_order, board)
   end
