@@ -182,7 +182,7 @@ def quit_early?(games)
     break if next_game == 'q' || next_game == 'quit' || next_game == ''
     prompt "Not sure what you meant there..."
   end
-  next_game.start_with?('q') ? true : false
+  next_game.start_with?('q')
 end
 
 def update_score(scores, winner)
@@ -197,12 +197,17 @@ def determine_grand_winner(scores)
   end
 end
 
-def declare_grand_winner(scores)
+def display_final_score(scores)
   clear_screen
   puts "Final score:"
   puts "You won #{scores['player']} game#{scores['player'] == 1 ? '' : 's'}"
   puts "I won #{scores['computer']} game#{scores['computer'] == 1 ? '' : 's'}"
   puts ""
+end
+
+def declare_grand_winner(scores)
+  display_final_score(scores)
+  
   case determine_grand_winner(scores)
   when 'player'
     puts "That means you are the grand winner! Congrats!"
@@ -222,7 +227,7 @@ def play_again?
     break if ['y', 'n', 'no', 'yes'].include?(answer)
     prompt "Not sure what you meant there..."
   end
-  answer.downcase.start_with?('y') ? true : false
+  answer.downcase.start_with?('y')
 end
 
 ### GAME PLAY STARTS HERE ###
