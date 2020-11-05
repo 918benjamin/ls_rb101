@@ -175,8 +175,13 @@ def loser_goes_first!(order, brd)
 end
 
 def quit_early?(games)
-  prompt "Hit enter to continue to game ##{games} or 'q' to stop early."
-  next_game = gets.chomp.downcase
+  next_game = nil
+  loop do
+    prompt "Hit enter to continue to game ##{games} or (q)uit to stop early."
+    next_game = gets.chomp.downcase
+    break if next_game == 'q' || next_game == 'quit' || next_game == ''
+    prompt "Not sure what you meant there..."
+  end
   next_game.start_with?('q') ? true : false
 end
 
