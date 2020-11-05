@@ -231,7 +231,7 @@ def play_again?
 end
 
 def update_games(games)
-  games += 1
+  games + 1
 end
 
 def someone_won?(scores)
