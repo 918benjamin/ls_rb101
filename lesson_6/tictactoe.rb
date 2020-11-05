@@ -215,8 +215,13 @@ def declare_grand_winner(scores)
 end
 
 def play_again?
-  prompt "Play again? (y for yes, anything else for no)"
-  answer = gets.chomp
+  answer = ""
+  loop do
+    prompt "Play again? (Y)es or (N)o"
+    answer = gets.chomp.downcase
+    break if ['y', 'n', 'no', 'yes'].include?(answer)
+    prompt "Not sure what you meant there..."
+  end
   answer.downcase.start_with?('y') ? true : false
 end
 
