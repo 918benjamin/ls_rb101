@@ -1,4 +1,4 @@
-SECS = 3
+SECS = 2
 SUITS = ['Spades', 'Clubs', 'Hearts', 'Diamonds']
 CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
   'King', 'Ace']
@@ -27,6 +27,20 @@ end
 
 def prompt(msg)
   puts "=> #{msg}"
+end
+
+def welcome_user
+  clear_screen
+  puts "Welcome to Twenty-One!"
+  puts "Be closest to 21 without going over (bust) and you win!"
+  puts ""
+  prompt "Press enter to start"
+  gets.chomp
+end
+
+def say_goodbye
+  clear_screen
+  puts "Thanks for playing Twenty-One! Goodbye."
 end
 
 def initialize_deck
@@ -110,7 +124,7 @@ def player_turn(deck, hands)
   end
 
   puts "You busted" if busted?(hands, 'player') 
-  puts ""
+  sleep SECS
 end
 
 def dealer_turn(deck, hands)
@@ -163,34 +177,47 @@ def display_result(winner, hands)
   end
 end
 
+def play_again?
+  answer = ""
+  loop do
+    prompt "Play again? (Y)es or (N)o"
+    answer = gets.chomp.downcase
+    break if ['y', 'n', 'no', 'yes'].include?(answer)
+    prompt "Not sure what you meant there..."
+  end
+  answer.downcase.start_with?('y')
+end
+
 ##### GAME STARTS HERE #####
 
-#TODO: Welcome User method
+welcome_user
 
-deck = initialize_deck
-hands = deal_hands(deck)
+loop do
+  deck = initialize_deck
+  hands = deal_hands(deck)
 
-display_cards(hands)
-player_turn(deck, hands)
+  display_cards(hands)
+  player_turn(deck, hands)
 
-dealer_turn(deck, hands) unless busted?(hands, 'player')
+  dealer_turn(deck, hands) unless busted?(hands, 'player')
 
-winner = determine_winner(hands)
+  winner = determine_winner(hands)
 
-display_result(winner, hands)
+  display_result(winner, hands)
+  
+  break unless play_again?
+end
 
-# TODO: Offer to let them play again and loop
-
-# TODO: If not playing again, goodbye method
+say_goodbye
 
 =begin
 [X] Initialize deck 
 [X] Deal cards to player and dealer
 [X] Player turn: hit or stay
   [X]- repeat until bust or "stay"
-[ ] If player bust, dealer wins.
-[ ] Dealer turn: hit or stay
-  [ ] repeat until total >= 17
-[ ] If dealer bust, player wins.
-[ ] Compare cards and declare winner.
+[X] If player bust, dealer wins.
+[X] Dealer turn: hit or stay
+  [X] repeat until total >= 17
+[X] If dealer bust, player wins.
+[X] Compare cards and declare winner.
 =end
