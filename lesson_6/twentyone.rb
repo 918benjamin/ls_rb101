@@ -73,9 +73,9 @@ def display_cards(hands) # TODO reuse this for showing hands at the end
   puts "You have: #{player_hand(hands)}"
 end
 
-def card_value(card)
+def card_value(card, ace_value=0)
   if card == 'ace'
-    CARD_VALUES[card][0]
+    CARD_VALUES[card][ace_value]
   else
     CARD_VALUES[card]
   end
@@ -85,8 +85,8 @@ def hand_total(hands, person)
   hands[person].map { |card_arr| card_value(card_arr[1]) }.flatten.sum
 end
 
-def busted?(hands, person)
-  hand_total(hands, person) > 21
+def busted?(hand_value, person)
+  hand_value > 21
 end
 
 def hit(deck, hands, person)
@@ -97,11 +97,11 @@ def player_turn(deck, hands)
   loop do
     prompt 'hit or stay?'
     answer = gets.chomp.downcase
-    break if answer == 'stay' || busted?(hands, 'player')
+    break if answer == 'stay' || busted?(hand_total(hands, 'player'), 'player')
 
     if answer == 'hit'
       hit(deck, hands, 'player')
-      break if busted?(hands, 'player')
+      break if busted?(hand_total(hands, 'player'), 'player')
     else
       puts "Not sure what you mean..."
     end
@@ -109,11 +109,11 @@ def player_turn(deck, hands)
     display_cards(hands)
   end
 
-  puts "You busted" if busted?(hands, 'player')
+  puts "You busted" if busted?(hand_total(hands, 'player'), 'player')
 end
 
 def display_dealer_turn_result(hands)
-  if busted?(hands, 'dealer')
+  if busted?(hand_total(hands, 'dealer'), 'dealer')
     puts 'Dealer busted'
   else
     puts 'Dealer stayed'
@@ -136,16 +136,17 @@ def dealer_turn(deck, hands)
       hit(deck, hands, 'dealer')
       display_dealer_action(counter)
     end
-    break if hand_total(hands, 'dealer') >= 17 || busted?(hands, 'dealer')
+    break if hand_total(hands, 'dealer') >= 17 ||
+             busted?(hand_total(hands, 'dealer'), 'dealer')
   end
 
   display_dealer_turn_result(hands)
 end
 
 def determine_winner(hands)
-  if busted?(hands, 'player')
+  if busted?(hand_total(hands, 'player'), 'player')
     'dealer'
-  elsif busted?(hands, 'dealer')
+  elsif busted?(hand_total(hands, 'dealer'), 'dealer')
     'player'
   else
     case hand_total(hands, 'player') <=> hand_total(hands, 'dealer')
@@ -191,7 +192,7 @@ loop do
   display_cards(hands)
   player_turn(deck, hands)
 
-  dealer_turn(deck, hands) unless busted?(hands, 'player')
+  dealer_turn(deck, hands) unless busted?(hand_total(hands, 'player'), 'player')
 
   winner = determine_winner(hands)
 
