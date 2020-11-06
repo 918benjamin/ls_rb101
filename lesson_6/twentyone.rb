@@ -1,24 +1,48 @@
-# Figure out a data structure to contain the "deck" and the "player's cards"
-# and "dealer's cards". Maybe a hash? An array? A nested array? Your decision
-# will have consequences throughout your code, but don't be afraid of choosing
-# the wrong one. Play around with an idea, and see how far you can push it.
-# If it doesn't work, back out of it.
-
-hands = { player: [], dealer: [] }
-
-card_values = { '2' => [2], '3' => [3], '4' => [4], '5' => [5], '6' => [6],
+SUITS = ['Spades', 'Clubs', 'Hearts', 'Diamonds']
+CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
+  'King', 'Ace']
+CARD_VALUES = { '2' => [2], '3' => [3], '4' => [4], '5' => [5], '6' => [6],
                 '7' => [7], '8' => [8], '9' => [9], '10' => [10],
                 'Jack' => [10], 'Queen' => [10], 'King' => [10],
                 'Ace' => [1, 11]
 }
 
-deck = { 
-  'Spade' =>   ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
+# Visual representation as a reminder. TODO - delete this at the end
+DECK = { 
+  'Spades' =>   ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
                 'King', 'Ace'],
-  'Heart' =>   ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
+  'Hearts' =>   ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
                 'King', 'Ace'],
-  'Club' =>    ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
+  'Clubs' =>    ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
                 'King', 'Ace'],
-  'Diamond' => ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
+  'Diamonds' => ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
                 'King', 'Ace']
 }
+
+def initialize_deck
+  SUITS.each_with_object({}) do |suit, hsh|
+    hsh[suit] = CARDS.each_with_object([]) do |card, arr|
+      arr << card
+    end
+  end
+end
+
+def initialize_hands
+  { 'player' => [], 'dealer' => [] }
+end
+
+deck = initialize_deck
+hands = initialize_hands
+
+
+=begin
+1. Initialize deck
+2. Deal cards to player and dealer
+3. Player turn: hit or stay
+  - repeat until bust or "stay"
+4. If player bust, dealer wins.
+5. Dealer turn: hit or stay
+  - repeat until total >= 17
+6. If dealer bust, player wins.
+7. Compare cards and declare winner.
+=end
