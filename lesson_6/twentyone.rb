@@ -4,7 +4,7 @@ CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
 CARD_VALUES = { '2' => [2], '3' => [3], '4' => [4], '5' => [5], '6' => [6],
                 '7' => [7], '8' => [8], '9' => [9], '10' => [10],
                 'Jack' => [10], 'Queen' => [10], 'King' => [10],
-                'Ace' => [1, 11]
+                'Ace' => [1] #TODO - add 11 back to ace
 }
 
 # Visual representation as a reminder. TODO - delete this at the end
@@ -31,10 +31,6 @@ def initialize_deck
   end
 end
 
-def initialize_hands
-  { 'player' => [], 'dealer' => [] }
-end
-
 def draw_card(deck)
   suit = ''
   loop do
@@ -52,22 +48,70 @@ def deal_hands(deck) # TODO: Is it unfair to deal two at once to either player?
   }
 end
 
+def joinand(arr, delim=', ', conj='and')
+  if arr.size == 2
+    "#{arr.first} #{conj} #{arr.last}"
+  else
+    last_item = arr.pop
+    arr.join(delim) + delim + conj + ' ' + last_item.to_s
+  end
+end
+
+def player_hand(hands)
+  joinand(hands['player'].map { |arr| arr[1] })
+end
+
 def display_cards(hands)
   puts "Dealer has: #{hands['dealer'][0][1]} and unknown"
-  puts "You have: #{hands['player'][0][1]} and #{hands['player'][1][1]}"
+  puts "You have: #{player_hand(hands)}"
+end
+
+def card_value(card)
+  CARD_VALUES[card]
+end
+
+def hand_total(hands, person)
+  hands[person].map { |card_arr| card_value(card_arr[1]) }.flatten.sum
+end
+
+def busted?(hands, person)
+  hand_total(hands, person) > 21
+end
+
+def hit(deck, hands)
+  hands['player'] << draw_card(deck)
+end
+
+def player_turn(deck, hands)
+  loop do
+    prompt 'hit or stay?'
+    answer = gets.chomp
+    break if answer == 'stay' || busted?(hands, 'player')
+    
+    if answer == 'hit'
+      hit(deck, hands)
+      break if busted?(hands, 'player')
+    else
+      puts "Not sure what you mean..."
+    end
+    display_cards(hands)
+  end
 end
 
 deck = initialize_deck
 hands = deal_hands(deck)
 display_cards(hands)
 
+player_turn(deck, hands)
 
-puts ''
-p deck
-puts ''
-p hands
-puts ''
-p deck
+puts "Busted! Bummer" if busted?(hands, 'player')
+
+# puts ''
+# p deck
+# puts ''
+# p hands
+# puts ''
+# p deck
 
 =begin
 [X] Initialize deck 
