@@ -2,10 +2,9 @@ SECS = 1
 SUITS = ['Spades', 'Clubs', 'Hearts', 'Diamonds']
 CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
          'King', 'Ace']
-CARD_VALUES = { '2' => [2], '3' => [3], '4' => [4], '5' => [5], '6' => [6],
-                '7' => [7], '8' => [8], '9' => [9], '10' => [10],
-                'Jack' => [10], 'Queen' => [10], 'King' => [10],
-                'Ace' => [1, 11] }
+CARD_VALUES = { '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6, '7' => 7,
+                '8' => 8, '9' => 9, '10' => 10, 'Jack' => 10, 'Queen' => 10,
+                'King' => 10, 'Ace' => 11 }
 
 def clear_screen
   system 'clear'
@@ -63,29 +62,33 @@ def joinand(arr, delim=', ', conj='and')
   end
 end
 
-def player_hand(hands) # TODO make generic for either person
-  joinand(hands['player'].map { |arr| arr[1] })
+def join_hand(hands, person) # TODO make generic for either person
+  joinand(hands[person].map { |arr| arr[1] })
 end
 
 def display_cards(hands) # TODO reuse this for showing hands at the end
   clear_screen
   puts "Dealer has: #{hands['dealer'][0][1]} and unknown"
-  puts "You have: #{player_hand(hands)}"
+  puts "You have: #{join_hand(hands, 'player')}"
 end
 
-def card_value(card, ace_value=0)
-  if card == 'ace'
-    CARD_VALUES[card][ace_value]
-  else
-    CARD_VALUES[card]
-  end
+def card_value(card)
+  CARD_VALUES[card]
 end
 
 def hand_total(hands, person)
-  hands[person].map { |card_arr| card_value(card_arr[1]) }.flatten.sum
+  total = 0
+  arr = hands[person].map { |card_arr| card_value(card_arr[1]) }
+  total = arr.sum
+  loop do
+    break unless busted?(total) && arr.include?(11)
+    arr.delete_at(arr.find_index(11))
+    total -= 10
+  end
+  total
 end
 
-def busted?(hand_value, person)
+def busted?(hand_value)
   hand_value > 21
 end
 
@@ -97,23 +100,27 @@ def player_turn(deck, hands)
   loop do
     prompt 'hit or stay?'
     answer = gets.chomp.downcase
-    break if answer == 'stay' || busted?(hand_total(hands, 'player'), 'player')
+    break if answer == 'stay' || busted?(hand_total(hands, 'player'))
 
     if answer == 'hit'
       hit(deck, hands, 'player')
-      break if busted?(hand_total(hands, 'player'), 'player')
+      break if busted?(hand_total(hands, 'player'))
     else
       puts "Not sure what you mean..."
+      sleep SECS
     end
 
     display_cards(hands)
   end
 
-  puts "You busted" if busted?(hand_total(hands, 'player'), 'player')
+  
+
+  puts "You busted" if busted?(hand_total(hands, 'player'))
+  puts ""
 end
 
 def display_dealer_turn_result(hands)
-  if busted?(hand_total(hands, 'dealer'), 'dealer')
+  if busted?(hand_total(hands, 'dealer'))
     puts 'Dealer busted'
   else
     puts 'Dealer stayed'
@@ -137,16 +144,16 @@ def dealer_turn(deck, hands)
       display_dealer_action(counter)
     end
     break if hand_total(hands, 'dealer') >= 17 ||
-             busted?(hand_total(hands, 'dealer'), 'dealer')
+             busted?(hand_total(hands, 'dealer'))
   end
 
   display_dealer_turn_result(hands)
 end
 
 def determine_winner(hands)
-  if busted?(hand_total(hands, 'player'), 'player')
+  if busted?(hand_total(hands, 'player'))
     'dealer'
-  elsif busted?(hand_total(hands, 'dealer'), 'dealer')
+  elsif busted?(hand_total(hands, 'dealer'))
     'player'
   else
     case hand_total(hands, 'player') <=> hand_total(hands, 'dealer')
@@ -160,8 +167,10 @@ end
 def display_result(winner, hands)
   puts ""
   puts "Final score:"
-  puts "Dealer had #{hand_total(hands, 'dealer')}"
-  puts "You had #{hand_total(hands, 'player')}"
+  puts "Dealer got #{hand_total(hands, 'dealer')} "\
+       "(#{join_hand(hands, 'dealer')})"
+  puts "You got #{hand_total(hands, 'player')} "\
+       "(#{join_hand(hands, 'player')})"
   puts ""
   case winner
   when 'player' then puts "That means you are the winner! Congrats!"
@@ -192,7 +201,7 @@ loop do
   display_cards(hands)
   player_turn(deck, hands)
 
-  dealer_turn(deck, hands) unless busted?(hand_total(hands, 'player'), 'player')
+  dealer_turn(deck, hands) unless busted?(hand_total(hands, 'player'))
 
   winner = determine_winner(hands)
 
