@@ -42,24 +42,24 @@ def draw_card(deck)
   [suit, card]
 end
 
-def deal_hands(deck, hands)
-
+def deal_hands(deck)
+  { 'player' => [draw_card(deck), draw_card(deck)],
+    'dealer' => [draw_card(deck), draw_card(deck)]
+  }
 end
 
 deck = initialize_deck
-hands = initialize_hands
+hands = deal_hands(deck)
 
 p deck
+puts ''
 p hands
-
-card = draw_card(deck)
-p card
-
+puts ''
 p deck
 
 =begin
 [X] Initialize deck 
-[ ] Deal cards to player and dealer
+[X] Deal cards to player and dealer
 [ ] Player turn: hit or stay
   [ ]- repeat until bust or "stay"
 [ ] If player bust, dealer wins.
