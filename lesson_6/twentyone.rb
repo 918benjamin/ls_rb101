@@ -31,18 +31,40 @@ def initialize_hands
   { 'player' => [], 'dealer' => [] }
 end
 
+def draw_card(deck)
+  suit = ''
+  loop do
+    suit = deck.keys.sample
+    break unless deck[suit].empty?
+  end
+  card = deck[suit].sample
+  deck[suit].delete(card)
+  [suit, card]
+end
+
+def deal_hands(deck, hands)
+
+end
+
 deck = initialize_deck
 hands = initialize_hands
 
+p deck
+p hands
+
+card = draw_card(deck)
+p card
+
+p deck
 
 =begin
-1. Initialize deck
-2. Deal cards to player and dealer
-3. Player turn: hit or stay
-  - repeat until bust or "stay"
-4. If player bust, dealer wins.
-5. Dealer turn: hit or stay
-  - repeat until total >= 17
-6. If dealer bust, player wins.
-7. Compare cards and declare winner.
+[X] Initialize deck 
+[ ] Deal cards to player and dealer
+[ ] Player turn: hit or stay
+  [ ]- repeat until bust or "stay"
+[ ] If player bust, dealer wins.
+[ ] Dealer turn: hit or stay
+  [ ] repeat until total >= 17
+[ ] If dealer bust, player wins.
+[ ] Compare cards and declare winner.
 =end
