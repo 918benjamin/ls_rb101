@@ -1,24 +1,11 @@
-SECS = 2
+SECS = 1
 SUITS = ['Spades', 'Clubs', 'Hearts', 'Diamonds']
 CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
-  'King', 'Ace']
+         'King', 'Ace']
 CARD_VALUES = { '2' => [2], '3' => [3], '4' => [4], '5' => [5], '6' => [6],
                 '7' => [7], '8' => [8], '9' => [9], '10' => [10],
                 'Jack' => [10], 'Queen' => [10], 'King' => [10],
-                'Ace' => [1, 11]
-}
-
-# Visual representation as a reminder. TODO - delete this at the end
-DECK = { 
-  'Spades' =>   ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
-                'King', 'Ace'],
-  'Hearts' =>   ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
-                'King', 'Ace'],
-  'Clubs' =>    ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
-                'King', 'Ace'],
-  'Diamonds' => ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
-                'King', 'Ace']
-}
+                'Ace' => [1, 11] }
 
 def clear_screen
   system 'clear'
@@ -64,8 +51,7 @@ end
 
 def deal_hands(deck) # TODO: Is it unfair to deal two at once to either player?
   { 'player' => [draw_card(deck), draw_card(deck)],
-    'dealer' => [draw_card(deck), draw_card(deck)]
-  }
+    'dealer' => [draw_card(deck), draw_card(deck)] }
 end
 
 def joinand(arr, delim=', ', conj='and')
@@ -112,7 +98,7 @@ def player_turn(deck, hands)
     prompt 'hit or stay?'
     answer = gets.chomp.downcase
     break if answer == 'stay' || busted?(hands, 'player')
-    
+
     if answer == 'hit'
       hit(deck, hands, 'player')
       break if busted?(hands, 'player')
@@ -123,7 +109,23 @@ def player_turn(deck, hands)
     display_cards(hands)
   end
 
-  puts "You busted" if busted?(hands, 'player') 
+  puts "You busted" if busted?(hands, 'player')
+end
+
+def display_dealer_turn_result(hands)
+  if busted?(hands, 'dealer')
+    puts 'Dealer busted'
+  else
+    puts 'Dealer stayed'
+  end
+  sleep SECS
+end
+
+def display_dealer_action(counter)
+  case counter
+  when 0 then puts "Dealer hits"
+  else puts "Dealer hits again"
+  end
   sleep SECS
 end
 
@@ -132,22 +134,12 @@ def dealer_turn(deck, hands)
   loop do
     if hand_total(hands, 'dealer') < 17
       hit(deck, hands, 'dealer')
-      case counter
-      when 0 then puts "Dealer hits"
-      else puts "Dealer hits again"
-      end
-      sleep SECS
+      display_dealer_action(counter)
     end
     break if hand_total(hands, 'dealer') >= 17 || busted?(hands, 'dealer')
   end
-  
-  if busted?(hands, 'dealer')
-    puts 'Dealer busted' 
-  else
-    puts 'Dealer stayed'
-    puts 'Calculating winner...'
-  end
-  sleep SECS
+
+  display_dealer_turn_result(hands)
 end
 
 def determine_winner(hands)
@@ -165,7 +157,7 @@ def determine_winner(hands)
 end
 
 def display_result(winner, hands)
-  clear_screen
+  puts ""
   puts "Final score:"
   puts "Dealer had #{hand_total(hands, 'dealer')}"
   puts "You had #{hand_total(hands, 'player')}"
@@ -204,20 +196,8 @@ loop do
   winner = determine_winner(hands)
 
   display_result(winner, hands)
-  
+
   break unless play_again?
 end
 
 say_goodbye
-
-=begin
-[X] Initialize deck 
-[X] Deal cards to player and dealer
-[X] Player turn: hit or stay
-  [X]- repeat until bust or "stay"
-[X] If player bust, dealer wins.
-[X] Dealer turn: hit or stay
-  [X] repeat until total >= 17
-[X] If dealer bust, player wins.
-[X] Compare cards and declare winner.
-=end
