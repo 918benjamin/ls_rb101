@@ -19,6 +19,10 @@ DECK = {
                 'King', 'Ace']
 }
 
+def prompt(msg)
+  puts "=> #{msg}"
+end
+
 def initialize_deck
   SUITS.each_with_object({}) do |suit, hsh|
     hsh[suit] = CARDS.each_with_object([]) do |card, arr|
@@ -42,15 +46,23 @@ def draw_card(deck)
   [suit, card]
 end
 
-def deal_hands(deck)
+def deal_hands(deck) # TODO: Is it unfair to deal two at once to either player?
   { 'player' => [draw_card(deck), draw_card(deck)],
     'dealer' => [draw_card(deck), draw_card(deck)]
   }
 end
 
+def display_cards(hands)
+  puts "Dealer has: #{hands['dealer'][0][1]} and unknown"
+  puts "You have: #{hands['player'][0][1]} and #{hands['player'][1][1]}"
+end
+
 deck = initialize_deck
 hands = deal_hands(deck)
+display_cards(hands)
 
+
+puts ''
 p deck
 puts ''
 p hands
