@@ -100,9 +100,9 @@ def player_turn(deck, hands)
   loop do
     prompt 'hit or stay?'
     answer = gets.chomp.downcase
-    break if answer == 'stay' || busted?(hand_total(hands, 'player'))
-
-    if answer == 'hit'
+    if answer == 'stay' || busted?(hand_total(hands, 'player'))
+      break
+    elsif answer == 'hit'
       hit(deck, hands, 'player')
       break if busted?(hand_total(hands, 'player'))
     else
@@ -113,9 +113,15 @@ def player_turn(deck, hands)
     display_cards(hands)
   end
 
-  
+  display_player_turn_result(hands)
+end
 
-  puts "You busted" if busted?(hand_total(hands, 'player'))
+def display_player_turn_result(hands)
+  if busted?(hand_total(hands, 'player'))
+    puts 'You busted'
+  else
+    puts "You stayed with a total of #{hand_total(hands, 'player')}"
+  end
   puts ""
 end
 
@@ -125,6 +131,7 @@ def display_dealer_turn_result(hands)
   else
     puts 'Dealer stayed'
   end
+  puts ""
   sleep SECS
 end
 
@@ -165,7 +172,6 @@ def determine_winner(hands)
 end
 
 def display_final_score(hands)
-  puts ""
   puts "Final score:"
   puts "Dealer got #{hand_total(hands, 'dealer')} "\
        "(#{join_hand(hands, 'dealer')})"
@@ -176,7 +182,7 @@ end
 
 def display_result(winner, hands)
   display_final_score(hands)
-  
+
   case winner
   when 'player' then puts "That means you are the winner! Congrats!"
   when 'dealer' then puts "That means the dealer won. Bummer."
