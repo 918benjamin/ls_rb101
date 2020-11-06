@@ -164,7 +164,7 @@ def determine_winner(hands)
   end
 end
 
-def display_result(winner, hands)
+def display_final_score(hands)
   puts ""
   puts "Final score:"
   puts "Dealer got #{hand_total(hands, 'dealer')} "\
@@ -172,6 +172,11 @@ def display_result(winner, hands)
   puts "You got #{hand_total(hands, 'player')} "\
        "(#{join_hand(hands, 'player')})"
   puts ""
+end
+
+def display_result(winner, hands)
+  display_final_score(hands)
+  
   case winner
   when 'player' then puts "That means you are the winner! Congrats!"
   when 'dealer' then puts "That means the dealer won. Bummer."
