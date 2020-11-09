@@ -96,6 +96,20 @@ def hit(deck, hands, person)
   hands[person] << draw_card(deck)
 end
 
+def display_turn_result(person, hand_total)
+  if busted?(hand_total)
+    puts "#{person == 'player' ? 'You' : 'Dealer'} busted"
+  elsif person == 'player'
+    puts "You stayed with a total of #{hand_total}"
+  else
+    puts 'Dealer stayed'
+    sleep SECS
+  end
+
+  puts ""
+end
+
+# rubocop:disable Metrics/MethodLength
 def player_turn(deck, hands)
   player_hand_total = hand_total(hands, 'player')
 
@@ -109,35 +123,15 @@ def player_turn(deck, hands)
       puts "Not sure what you mean..."
       next
     end
-    
+
     player_hand_total = hand_total(hands, 'player')
     break if busted?(player_hand_total)
     display_cards(hands)
   end
 
-  display_turn_result(hands, 'player', player_hand_total)
+  display_turn_result('player', player_hand_total)
 end
-
-def display_turn_result(hands, person, hand_total)
-  case person
-  when 'player'
-    if busted?(hand_total)
-      puts 'You busted'
-    else
-      puts "You stayed with a total of #{hand_total}"
-    end
-    puts ""
-  when 'dealer'
-    if busted?(hand_total)
-      puts 'Dealer busted'
-    else
-      puts 'Dealer stayed'
-    end
-    puts ""
-    sleep SECS
-  end
-end
-
+# rubocop:enable Metrics/MethodLength
 
 def display_dealer_action(counter)
   case counter
@@ -160,16 +154,18 @@ def dealer_turn(deck, hands)
              busted?(dealer_hand_total)
   end
 
-  display_turn_result(hands, 'dealer', dealer_hand_total)
+  display_turn_result('dealer', dealer_hand_total)
 end
 
 def determine_winner(hands)
-  if busted?(hand_total(hands, 'player'))
+  player_hand_total = hand_total(hands, 'player')
+  dealer_hand_total = hand_total(hands, 'dealer')
+  if busted?(player_hand_total)
     'dealer'
-  elsif busted?(hand_total(hands, 'dealer'))
+  elsif busted?(dealer_hand_total)
     'player'
   else
-    case hand_total(hands, 'player') <=> hand_total(hands, 'dealer')
+    case player_hand_total <=> dealer_hand_total
     when 1 then 'player'
     when -1 then 'dealer'
     when 0 then 'tie'
