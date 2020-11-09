@@ -82,7 +82,8 @@ def display_cards(hands, rounds)
   puts "--------"
   puts ""
   puts "Dealer has: #{hands['dealer'][0][1]} and unknown"
-  puts "You have: #{join_hand(hands, 'player')}"
+  puts "You have: #{join_hand(hands, 'player')} "\
+       "(#{hand_total(hands, 'player')} total)"
   puts ""
 end
 
@@ -128,7 +129,7 @@ def player_turn(deck, hands, rounds)
   player_hand_total = hand_total(hands, 'player')
 
   loop do
-    prompt 'hit or stay?'
+    prompt 'Would you like to hit or stay?'
     answer = gets.chomp.downcase
     case answer
     when 'stay' then break
