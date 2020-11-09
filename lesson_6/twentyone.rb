@@ -62,11 +62,11 @@ def joinand(arr, delim=', ', conj='and')
   end
 end
 
-def join_hand(hands, person) # TODO make generic for either person
+def join_hand(hands, person)
   joinand(hands[person].map { |arr| arr[1] })
 end
 
-def display_cards(hands) # TODO reuse this for showing hands at the end
+def display_cards(hands)
   clear_screen
   puts "Dealer has: #{hands['dealer'][0][1]} and unknown"
   puts "You have: #{join_hand(hands, 'player')}"
@@ -97,43 +97,47 @@ def hit(deck, hands, person)
 end
 
 def player_turn(deck, hands)
+  player_hand_total = hand_total(hands, 'player')
+
   loop do
     prompt 'hit or stay?'
     answer = gets.chomp.downcase
-    if answer == 'stay' || busted?(hand_total(hands, 'player'))
-      break
-    elsif answer == 'hit'
-      hit(deck, hands, 'player')
-      break if busted?(hand_total(hands, 'player'))
+    case answer
+    when 'stay' then break
+    when 'hit' then hit(deck, hands, 'player')
     else
       puts "Not sure what you mean..."
-      sleep SECS
+      next
     end
-
+    
+    player_hand_total = hand_total(hands, 'player')
+    break if busted?(player_hand_total)
     display_cards(hands)
   end
 
-  display_player_turn_result(hands)
+  display_turn_result(hands, 'player', player_hand_total)
 end
 
-def display_player_turn_result(hands)
-  if busted?(hand_total(hands, 'player'))
-    puts 'You busted'
-  else
-    puts "You stayed with a total of #{hand_total(hands, 'player')}"
+def display_turn_result(hands, person, hand_total)
+  case person
+  when 'player'
+    if busted?(hand_total)
+      puts 'You busted'
+    else
+      puts "You stayed with a total of #{hand_total}"
+    end
+    puts ""
+  when 'dealer'
+    if busted?(hand_total)
+      puts 'Dealer busted'
+    else
+      puts 'Dealer stayed'
+    end
+    puts ""
+    sleep SECS
   end
-  puts ""
 end
 
-def display_dealer_turn_result(hands)
-  if busted?(hand_total(hands, 'dealer'))
-    puts 'Dealer busted'
-  else
-    puts 'Dealer stayed'
-  end
-  puts ""
-  sleep SECS
-end
 
 def display_dealer_action(counter)
   case counter
@@ -145,16 +149,18 @@ end
 
 def dealer_turn(deck, hands)
   counter = 0
+  dealer_hand_total = hand_total(hands, 'dealer')
   loop do
-    if hand_total(hands, 'dealer') < 17
+    if dealer_hand_total < 17
       hit(deck, hands, 'dealer')
+      dealer_hand_total = hand_total(hands, 'dealer')
       display_dealer_action(counter)
     end
-    break if hand_total(hands, 'dealer') >= 17 ||
-             busted?(hand_total(hands, 'dealer'))
+    break if dealer_hand_total >= 17 ||
+             busted?(dealer_hand_total)
   end
 
-  display_dealer_turn_result(hands)
+  display_turn_result(hands, 'dealer', dealer_hand_total)
 end
 
 def determine_winner(hands)
