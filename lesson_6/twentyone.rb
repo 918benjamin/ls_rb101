@@ -1,6 +1,6 @@
 MAX_HAND_VALUE = 21
 DEALER_HITS_BELOW = 17
-ROUNDS = 5
+MAX_WINS = 5
 SECS = 1
 SUITS = ['Spades', 'Clubs', 'Hearts', 'Diamonds']
 CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
@@ -20,8 +20,11 @@ end
 
 def welcome_user
   clear_screen
-  puts "Welcome to Twenty-One!"
-  puts "Be closest to #{MAX_HAND_VALUE} without going over (bust) and you win!"
+  puts "Welcome to #{MAX_HAND_VALUE}!"
+  puts "Be closest to #{MAX_HAND_VALUE} without going over to win a hand."
+  puts "First one to win #{MAX_WINS} hands is the grand winner!"
+  puts ""
+  puts "hint: The dealer always hits below #{DEALER_HITS_BELOW}"
   puts ""
   prompt "Press enter to start"
   gets.chomp
@@ -29,7 +32,7 @@ end
 
 def say_goodbye
   clear_screen
-  puts "Thanks for playing Twenty-One! Goodbye."
+  puts "Thanks for playing #{MAX_HAND_VALUE}! Goodbye."
 end
 
 def initialize_deck
@@ -38,6 +41,10 @@ def initialize_deck
       arr << card
     end
   end
+end
+
+def initialize_score
+  { 'player' => 0, 'dealer' => 0, 'tie' => 0 }
 end
 
 def draw_card(deck)
@@ -51,7 +58,7 @@ def draw_card(deck)
   [suit, card]
 end
 
-def deal_hands(deck) # TODO: Is it unfair to deal two at once to either player?
+def deal_hands(deck)
   { 'player' => [draw_card(deck), draw_card(deck)],
     'dealer' => [draw_card(deck), draw_card(deck)] }
 end
@@ -69,10 +76,14 @@ def join_hand(hands, person)
   joinand(hands[person].map { |arr| arr[1] })
 end
 
-def display_cards(hands)
+def display_cards(hands, rounds)
   clear_screen
+  puts "Hand ##{rounds}"
+  puts "--------"
+  puts ""
   puts "Dealer has: #{hands['dealer'][0][1]} and unknown"
   puts "You have: #{join_hand(hands, 'player')}"
+  puts ""
 end
 
 def card_value(card)
@@ -104,16 +115,16 @@ def display_turn_result(person, hand_total)
     puts "#{person == 'player' ? 'You' : 'Dealer'} busted"
   elsif person == 'player'
     puts "You stayed with a total of #{hand_total}"
+    puts ""
   else
     puts 'Dealer stayed'
+    puts ""
     sleep SECS
   end
-
-  puts ""
 end
 
 # rubocop:disable Metrics/MethodLength
-def player_turn(deck, hands)
+def player_turn(deck, hands, rounds)
   player_hand_total = hand_total(hands, 'player')
 
   loop do
@@ -129,7 +140,7 @@ def player_turn(deck, hands)
 
     player_hand_total = hand_total(hands, 'player')
     break if busted?(player_hand_total)
-    display_cards(hands)
+    display_cards(hands, rounds)
   end
 
   display_turn_result('player', player_hand_total)
@@ -176,8 +187,10 @@ def determine_winner(hands)
   end
 end
 
-def display_final_score(hands)
-  puts "Final score:"
+def display_round_score(hands)
+  sleep SECS
+  clear_screen
+  puts "Hand results:"
   puts "Dealer got #{hand_total(hands, 'dealer')} "\
        "(#{join_hand(hands, 'dealer')})"
   puts "You got #{hand_total(hands, 'player')} "\
@@ -186,22 +199,60 @@ def display_final_score(hands)
 end
 
 def display_result(winner, hands)
-  display_final_score(hands)
+  display_round_score(hands)
 
   case winner
-  when 'player' then puts "That means you are the winner! Congrats!"
-  when 'dealer' then puts "That means the dealer won. Bummer."
+  when 'player' then puts "You won this hand. Congrats!"
+  when 'dealer' then puts "Dealer won this hand. Bummer."
   when 'tie' then puts "That means you tied. Meh."
+  end
+  puts ""
+end
+
+def update_score(score, winner)
+  score[winner] += 1
+end
+
+def grand_winner?(score)
+  score['player'] == MAX_WINS || score['dealer'] == MAX_WINS
+end
+
+def determine_grand_winner(score)
+  if score['player'] == score['dealer']
+    'tie'
+  else
+    score['player'] > score['dealer'] ? 'player' : 'dealer'
   end
 end
 
-def play_again?
+def display_grand_winner(winner, score)
+  puts ""
+  puts "---------------------"
+  puts ""
+  puts "GRAND WINNER:"
+  case winner
+  when 'dealer'
+    puts "The dealer won #{score['dealer']} hands so they're the grand winner."
+  when 'player'
+    puts "You won #{score['player']} hands so you are the grand winner! Woo!"
+  when 'tie'
+    puts "You and the dealer tied. You should play again to see who is better."
+  end
+  puts ""
+end
+
+def play_again_or_continue?(next_round=true)
   answer = ""
   loop do
-    prompt "Play again? (Y)es or (N)o"
+    if next_round
+      prompt "Continue to the next hand? (Y)es or (N)o"
+    else
+      prompt "Want to play again? (Y)es or (N)o"
+    end
     answer = gets.chomp.downcase
     break if ['y', 'n', 'no', 'yes'].include?(answer)
-    prompt "Not sure what you meant there..."
+    puts "Not sure what you meant there..."
+    puts ""
   end
   answer.downcase.start_with?('y')
 end
@@ -211,19 +262,30 @@ end
 welcome_user
 
 loop do
-  deck = initialize_deck
-  hands = deal_hands(deck)
+  score = initialize_score
+  rounds = 0
 
-  display_cards(hands)
-  player_turn(deck, hands)
+  loop do
+    deck = initialize_deck
+    hands = deal_hands(deck)
+    rounds += 1
 
-  dealer_turn(deck, hands) unless busted?(hand_total(hands, 'player'))
+    display_cards(hands, rounds)
+    player_turn(deck, hands, rounds)
 
-  winner = determine_winner(hands)
+    dealer_turn(deck, hands) unless busted?(hand_total(hands, 'player'))
 
-  display_result(winner, hands)
+    winner = determine_winner(hands)
+    update_score(score, winner)
 
-  break unless play_again?
+    display_result(winner, hands)
+
+    break if grand_winner?(score) || !play_again_or_continue?
+  end
+
+  grand_winner = determine_grand_winner(score)
+  display_grand_winner(grand_winner, score)
+
+  break unless play_again_or_continue?(false)
 end
-
 say_goodbye
