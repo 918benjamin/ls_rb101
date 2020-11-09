@@ -1,3 +1,6 @@
+MAX_HAND_VALUE = 21
+DEALER_HITS_BELOW = 17
+ROUNDS = 5
 SECS = 1
 SUITS = ['Spades', 'Clubs', 'Hearts', 'Diamonds']
 CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen',
@@ -18,7 +21,7 @@ end
 def welcome_user
   clear_screen
   puts "Welcome to Twenty-One!"
-  puts "Be closest to 21 without going over (bust) and you win!"
+  puts "Be closest to #{MAX_HAND_VALUE} without going over (bust) and you win!"
   puts ""
   prompt "Press enter to start"
   gets.chomp
@@ -89,7 +92,7 @@ def hand_total(hands, person)
 end
 
 def busted?(hand_value)
-  hand_value > 21
+  hand_value > MAX_HAND_VALUE
 end
 
 def hit(deck, hands, person)
@@ -145,12 +148,12 @@ def dealer_turn(deck, hands)
   counter = 0
   dealer_hand_total = hand_total(hands, 'dealer')
   loop do
-    if dealer_hand_total < 17
+    if dealer_hand_total < DEALER_HITS_BELOW
       hit(deck, hands, 'dealer')
       dealer_hand_total = hand_total(hands, 'dealer')
       display_dealer_action(counter)
     end
-    break if dealer_hand_total >= 17 ||
+    break if dealer_hand_total >= DEALER_HITS_BELOW ||
              busted?(dealer_hand_total)
   end
 
