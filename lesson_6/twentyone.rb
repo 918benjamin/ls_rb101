@@ -24,7 +24,7 @@ def welcome_user
   puts "Be closest to #{MAX_HAND_VALUE} without going over to win a hand."
   puts "First one to win #{MAX_WINS} hands is the grand winner!"
   puts ""
-  puts "hint: The dealer always hits below #{DEALER_HITS_BELOW}"
+  puts "Hint: The dealer always hits below #{DEALER_HITS_BELOW}"
   puts ""
   prompt "Press enter to start"
   gets.chomp
@@ -124,16 +124,19 @@ def display_turn_result(person, hand_total)
   end
 end
 
-# rubocop:disable Metrics/MethodLength
+def hit_or_stay
+  prompt 'Would you like to (h)it or (s)tay?'
+  gets.chomp.downcase
+end
+
 def player_turn(deck, hands, rounds)
   player_hand_total = hand_total(hands, 'player')
 
   loop do
-    prompt 'Would you like to hit or stay?'
-    answer = gets.chomp.downcase
+    answer = hit_or_stay
     case answer
-    when 'stay' then break
-    when 'hit' then hit(deck, hands, 'player')
+    when 'stay', 's' then break
+    when 'hit', 'h' then hit(deck, hands, 'player')
     else
       puts "Not sure what you mean..."
       next
@@ -146,7 +149,6 @@ def player_turn(deck, hands, rounds)
 
   display_turn_result('player', player_hand_total)
 end
-# rubocop:enable Metrics/MethodLength
 
 def display_dealer_action(counter)
   case counter
@@ -192,9 +194,9 @@ def display_round_score(hands)
   sleep SECS
   clear_screen
   puts "Hand results:"
-  puts "Dealer got #{hand_total(hands, 'dealer')} "\
+  puts "Dealer has #{hand_total(hands, 'dealer')} "\
        "(#{join_hand(hands, 'dealer')})"
-  puts "You got #{hand_total(hands, 'player')} "\
+  puts "You have #{hand_total(hands, 'player')} "\
        "(#{join_hand(hands, 'player')})"
   puts ""
 end
